@@ -1,1 +1,42 @@
-[]
+[
+    {
+        "message_id": "msg-73861d1e36",
+        "sender_id": "u-2e2d5b2a63",
+        "sender_username": "palki_a",
+        "receiver_id": "u-47fa9c3151",
+        "receiver_username": "priyankjain",
+        "content": "kutteya kojjeya",
+        "timestamp": "2026-11-18T17:23:22.259658+00:00",
+        "is_read": true
+    },
+    {
+        "message_id": "msg-8ec697ce88",
+        "sender_id": "u-47fa9c3151",
+        "sender_username": "priyankjain",
+        "receiver_id": "u-2e2d5b2a63",
+        "receiver_username": "palki_a",
+        "content": "Hnn bol bauni",
+        "timestamp": "2026-11-18T17:23:32.793232+00:00",
+        "is_read": true
+    },
+    {
+        "message_id": "msg-8ae2039619",
+        "sender_id": "u-2e2d5b2a63",
+        "sender_username": "palki_a",
+        "receiver_id": "u-47fa9c3151",
+        "receiver_username": "priyankjain",
+        "content": "tu kojja",
+        "timestamp": "2026-11-18T17:23:37.523712+00:00",
+        "is_read": true
+    },
+    {
+        "message_id": "msg-f50f9a25fb",
+        "sender_id": "u-47fa9c3151",
+        "sender_username": "priyankjain",
+        "receiver_id": "u-2e2d5b2a63",
+        "receiver_username": "palki_a",
+        "content": "Tu Bauni",
+        "timestamp": "2026-11-18T17:23:44.538770+00:00",
+        "is_read": true
+    }
+]

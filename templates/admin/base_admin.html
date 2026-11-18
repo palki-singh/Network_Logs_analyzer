@@ -48,6 +48,14 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ url_for('admin_reports') }}" class="{% if active_tab == 'reports' %}active{% endif %}">
+                        <span class="nav-icon">📑</span> Critical Reports
+                        {% if critical_reports_count and critical_reports_count > 0 %}
+                            <span class="sidebar-badge" style="background: #b91c1c; color: #fff; font-weight: 800; border: 1px solid #f87171;">{{ critical_reports_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li>
                     <a href="{{ url_for('admin_users') }}" class="{% if active_tab == 'users' %}active{% endif %}">
                         <span class="nav-icon">👥</span> User Monitoring
                     </a>

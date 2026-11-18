@@ -46,20 +46,27 @@ def get_dashboard_metrics():
         "CRITICAL": sum(1 for a in alerts if a.get("severity") == "CRITICAL"),
     }
 
-    # AI Anomaly Detection metrics
+    # AI Anomaly Detection metrics & Groq AI Reports
     from modules.ai_detector import ai_detector
+    from modules.groq_detector import groq_analyzer
     active_ai_warnings = ai_detector.get_active_ai_warnings()
     all_ai_warnings = ai_detector.get_recent_ai_warnings(limit=10)
+    critical_reports = groq_analyzer.get_all_reports()
 
     ai_telemetry = {
-        "model_name": "IsolationForest (scikit-learn) + Feature Ensemble",
-        "status": "ONLINE",
-        "is_trained": ai_detector.is_trained,
+        "model_name": f"Groq AI ({Config.GROQ_MODEL})",
+        "groq_model": Config.GROQ_MODEL,
+        "status": "ONLINE (5-Sec Real-Time Batching)",
+        "is_trained": True,
         "last_trained_at": ai_detector.last_trained_at,
         "active_warning_count": len(active_ai_warnings),
         "total_ai_alerts": len(all_ai_warnings),
         "active_warnings": active_ai_warnings,
-        "recent_ai_warnings": all_ai_warnings
+        "recent_ai_warnings": all_ai_warnings,
+        "critical_reports": critical_reports,
+        "critical_reports_count": len(critical_reports),
+        "latest_diagnosis": groq_analyzer.latest_ai_diagnosis,
+        "last_analysis_time": groq_analyzer.last_analysis_time
     }
 
     return {

@@ -1,1 +1,103 @@
-[]
+[
+    {
+        "alert_id": "alert-65c45c47c0",
+        "timestamp": "2026-11-18T16:58:38.147390+00:00",
+        "alert_type": "BRUTE_FORCE",
+        "source_ip": "198.51.100.22",
+        "severity": "HIGH",
+        "description": "Brute-force login attack detected: 5 failed login attempts from IP 198.51.100.22 within 5 minutes (Target username: alice).",
+        "status": "UNRESOLVED"
+    },
+    {
+        "alert_id": "alert-f219d05f43",
+        "timestamp": "2026-11-18T16:58:38.247842+00:00",
+        "alert_type": "AI_UNUSUAL_LOGIN_VOLUME",
+        "source_ip": "198.51.100.22",
+        "severity": "HIGH",
+        "description": "[AI Warning - 70.6% Confidence] AI Detected Unusual Login Velocity: 5 login requests detected from IP 198.51.100.22 within 3 minutes (Failed ratio: 100%).",
+        "status": "RESOLVED",
+        "resolved_at": "2026-11-18T16:58:50.611882+00:00",
+        "resolved_by": "admin"
+    },
+    {
+        "alert_id": "ai-alert-b7be18a4",
+        "timestamp": "2026-11-18T16:58:41.427547+00:00",
+        "alert_type": "AI_BRUTE_FORCE",
+        "source_ip": "198.51.100.22",
+        "severity": "HIGH",
+        "description": "[Groq AI Detection] Rapid sequence of 5 failed login attempts for user 'alice' from IP 198.51.100.22 triggered a brute-force alert. (Reason: The logs show 5 consecutive failed login attempts for the user 'alice' from the same IP address (198.51.100.22) within approximately 368 milliseconds. This high-frequency pattern of authentication fai)",
+        "status": "RESOLVED",
+        "ai_detected": true,
+        "ai_model": "qwen/qwen3.8-27b",
+        "resolved_at": "2026-11-18T16:59:05.496738+00:00",
+        "resolved_by": "admin"
+    },
+    {
+        "alert_id": "ai-alert-54888ee6",
+        "timestamp": "2026-11-18T16:58:43.016395+00:00",
+        "alert_type": "AI_BRUTE_FORCE",
+        "source_ip": "198.51.100.22",
+        "severity": "HIGH",
+        "description": "[Groq AI Detection] Rapid sequence of 5 failed login attempts against user 'alice' from IP 198.51.100.22 triggered a brute-force alert. (Reason: The logs show 5 consecutive failed login attempts for the user 'alice' originating from IP 198.51.100.22 within a 368-millisecond window. This high-frequency pattern is characteristic of an automated )",
+        "status": "RESOLVED",
+        "ai_detected": true,
+        "ai_model": "qwen/qwen3.8-27b",
+        "resolved_at": "2026-11-18T16:59:03.305892+00:00",
+        "resolved_by": "admin"
+    },
+    {
+        "alert_id": "ai-alert-6c98f25d",
+        "timestamp": "2026-11-18T17:13:24.977307+00:00",
+        "alert_type": "AI_BRUTE_FORCE",
+        "source_ip": "198.51.100.22",
+        "severity": "HIGH",
+        "description": "[Groq AI Detection] Rapid sequence of 5 failed login attempts against user 'alice' from IP 198.51.100.22 triggered a brute-force intrusion detection alert. (Reason: The logs show 5 consecutive failed login attempts for the user 'alice' originating from IP 198.51.100.22 within a 368-millisecond window (16:58:37.751 to 16:58:38.119). This high-frequency pattern is )",
+        "status": "UNRESOLVED",
+        "ai_detected": true,
+        "ai_model": "qwen/qwen3.8-27b"
+    },
+    {
+        "alert_id": "ai-alert-b57c1080",
+        "timestamp": "2026-11-18T17:16:00.538546+00:00",
+        "alert_type": "AI_BRUTE_FORCE",
+        "source_ip": "198.51.100.22",
+        "severity": "HIGH",
+        "description": "[Groq AI Detection] Rapid sequence of 5 failed login attempts against user 'alice' from IP 198.51.100.22 triggered a brute-force alert. (Reason: The logs show 5 consecutive failed login attempts for the user 'alice' originating from IP 198.51.100.22 within a span of less than 1 second (16:58:37.751 to 16:58:38.119). This high-frequency failure)",
+        "status": "UNRESOLVED",
+        "ai_detected": true,
+        "ai_model": "qwen/qwen3.8-27b"
+    },
+    {
+        "alert_id": "ai-alert-0287257e",
+        "timestamp": "2026-11-18T17:20:04.241340+00:00",
+        "alert_type": "AI_BRUTE_FORCE",
+        "source_ip": "198.51.100.22",
+        "severity": "HIGH",
+        "description": "[Groq AI Detection] Rapid sequence of 5 failed login attempts against user 'alice' from IP 198.51.100.22 triggered a brute-force intrusion detection alert. (Reason: The logs show 5 consecutive failed login attempts for the user 'alice' originating from IP 198.51.100.22 within a 368-millisecond window (16:58:37.751 to 16:58:38.119). This high-frequency failure pat)",
+        "status": "UNRESOLVED",
+        "ai_detected": true,
+        "ai_model": "qwen/qwen3.8-27b"
+    },
+    {
+        "alert_id": "ai-alert-560a8f3b",
+        "timestamp": "2026-11-18T17:20:28.774791+00:00",
+        "alert_type": "AI_BRUTE_FORCE",
+        "source_ip": "198.51.100.22",
+        "severity": "HIGH",
+        "description": "[Groq AI Detection] Rapid sequence of 5 failed login attempts against user 'alice' from IP 198.51.100.22 triggered a brute-force alert. (Reason: The logs show 5 consecutive failed login attempts for the user 'alice' from IP 198.51.100.22 within less than 1 second (16:58:37.75 to 16:58:38.11). This rapid failure rate is a classic indicator of a)",
+        "status": "UNRESOLVED",
+        "ai_detected": true,
+        "ai_model": "qwen/qwen3.8-27b"
+    },
+    {
+        "alert_id": "ai-alert-2d4f7b0f",
+        "timestamp": "2026-11-18T17:20:30.464709+00:00",
+        "alert_type": "AI_BRUTE_FORCE",
+        "source_ip": "198.51.100.22",
+        "severity": "HIGH",
+        "description": "[Groq AI Detection] Rapid sequence of 5 failed login attempts against user 'alice' from IP 198.51.100.22 triggered a brute-force alert. (Reason: The logs show 5 consecutive failed login attempts for the user 'alice' originating from IP 198.51.100.22 within a 368-millisecond window. This high-frequency pattern is characteristic of an automated )",
+        "status": "UNRESOLVED",
+        "ai_detected": true,
+        "ai_model": "qwen/qwen3.8-27b"
+    }
+]

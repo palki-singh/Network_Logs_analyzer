@@ -1,0 +1,114 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}{{ report.report_id }} - Critical Incident Forensic Report{% endblock %}
+
+{% block content %}
+<div class="admin-topbar">
+    <div class="admin-page-title">
+        <h1>{{ report.incident_title }}</h1>
+        <p>Forensic Incident Report ID: <code>{{ report.report_id }}</code> &bull; Threat Level: <span class="badge-sev badge-sev-critical">CRITICAL</span></p>
+    </div>
+    <div class="admin-actions">
+        <a href="{{ url_for('admin_report_export', report_id=report.report_id) }}" class="btn btn-secondary btn-sm" style="background: #1f2937; color: #38bdf8; border-color: #374151;">
+            📥 Export Report JSON
+        </a>
+        <a href="{{ url_for('admin_reports') }}" class="btn btn-secondary btn-sm" style="background: transparent; color: #9ca3af; border-color: #374151;">
+            ← Back to All Reports
+        </a>
+    </div>
+</div>
+
+<!-- Incident Header Overview Card -->
+<div class="dash-card" style="border-top: 4px solid #ef4444;">
+    <div class="dash-card-header" style="background: rgba(239, 68, 68, 0.1);">
+        <h2 style="font-size: 1.2rem; color: #ffffff;">Executive Threat Overview</h2>
+        <span style="font-size: 0.8rem; color: #fca5a5;">Analyzed by {{ report.ai_engine }}</span>
+    </div>
+    <div style="padding: 1.5rem;">
+        <div style="font-size: 1rem; color: #f1f5f9; line-height: 1.6; margin-bottom: 1.5rem; background: rgba(15, 23, 42, 0.6); padding: 1.25rem; border-radius: 6px; border-left: 3px solid #ef4444;">
+            <strong>Executive Summary:</strong><br>
+            {{ report.executive_summary }}
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
+            <div style="background: #0b0f19; padding: 1rem; border-radius: 6px; border: 1px solid var(--dash-border);">
+                <span style="color: var(--dash-text-muted); font-size: 0.75rem; text-transform: uppercase;">Attacker Source IP:</span>
+                <div style="font-size: 1.1rem; font-weight: 800; color: #f87171; font-family: monospace; margin-top: 2px;">{{ report.attacker_ip }}</div>
+            </div>
+
+            <div style="background: #0b0f19; padding: 1rem; border-radius: 6px; border: 1px solid var(--dash-border);">
+                <span style="color: var(--dash-text-muted); font-size: 0.75rem; text-transform: uppercase;">Classified Attack Type:</span>
+                <div style="font-size: 1.1rem; font-weight: 800; color: #38bdf8; margin-top: 2px;">{{ report.attack_type }}</div>
+            </div>
+
+            <div style="background: #0b0f19; padding: 1rem; border-radius: 6px; border: 1px solid var(--dash-border);">
+                <span style="color: var(--dash-text-muted); font-size: 0.75rem; text-transform: uppercase;">Detection Timestamp:</span>
+                <div style="font-size: 0.95rem; font-weight: 700; color: #ffffff; margin-top: 2px;">{{ report.timestamp[:19].replace('T', ' ') }} UTC</div>
+            </div>
+
+            <div style="background: #0b0f19; padding: 1rem; border-radius: 6px; border: 1px solid var(--dash-border);">
+                <span style="color: var(--dash-text-muted); font-size: 0.75rem; text-transform: uppercase;">Targeted Endpoint(s):</span>
+                <div style="font-size: 0.95rem; font-weight: 700; color: #fbbf24; font-family: monospace; margin-top: 2px;">{{ report.targeted_resources|join(', ') }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Threat Analysis & Remediation Grid -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+
+    <!-- Threat Analysis -->
+    <div class="dash-card" style="margin-bottom: 0;">
+        <div class="dash-card-header">
+            <h2>🧠 Groq AI Attack Vector Analysis</h2>
+        </div>
+        <div style="padding: 1.5rem; color: #e2e8f0; font-size: 0.92rem; line-height: 1.6;">
+            <p>{{ report.threat_details }}</p>
+
+            <h4 style="color: #ffffff; font-size: 0.95rem; margin-top: 1.25rem; margin-bottom: 0.5rem;">Indicators of Compromise (IoCs):</h4>
+            <ul style="list-style: none; padding-left: 0;">
+                {% for ioc in report.indicators_of_compromise %}
+                    <li style="padding: 0.4rem 0.6rem; background: #0b0f19; border-radius: 4px; border: 1px solid var(--dash-border); margin-bottom: 0.35rem; font-family: monospace; font-size: 0.8rem; color: #38bdf8;">
+                        • {{ ioc }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Recommended Remediation -->
+    <div class="dash-card" style="margin-bottom: 0;">
+        <div class="dash-card-header">
+            <h2>🛡️ Recommended Mitigation Actions</h2>
+        </div>
+        <div style="padding: 1.5rem; color: #e2e8f0; font-size: 0.92rem; line-height: 1.6;">
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 6px; padding: 1rem; margin-bottom: 1rem; color: #a7f3d0;">
+                <strong>Autonomous SOC Recommendation:</strong><br>
+                {{ report.remediation_actions }}
+            </div>
+
+            <h4 style="color: #ffffff; font-size: 0.95rem; margin-bottom: 0.5rem;">Immediate SOC Checklist:</h4>
+            <ol style="padding-left: 1.25rem; font-size: 0.85rem; color: var(--dash-text-muted); display: flex; flex-direction: column; gap: 0.35rem;">
+                <li>Verify whether the source IP belongs to known internal administrators or external unauthorized actors.</li>
+                <li>Apply strict IP block / rate-limit threshold for <code>{{ report.attacker_ip }}</code>.</li>
+                <li>Audit session tokens created around <code>{{ report.timestamp[11:19] }}</code> for signs of tampering.</li>
+                <li>Archive this report for compliance and root-cause post-mortem review.</li>
+            </ol>
+        </div>
+    </div>
+
+</div>
+
+<!-- Forensic Raw Logs Evidence -->
+<div class="dash-card">
+    <div class="dash-card-header">
+        <h2>📋 Forensic Evidence Logs (Captured in 5s Analysis Window)</h2>
+        <span style="font-size: 0.8rem; color: var(--dash-text-muted);">{{ report.evidence_logs_sample|length }} entries captured</span>
+    </div>
+    <div style="padding: 1.5rem;">
+        <div class="json-viewer-container" style="max-height: 380px;">
+            <pre><code>{{ report.evidence_logs_sample | tojson(indent=4) }}</code></pre>
+        </div>
+    </div>
+</div>
+{% endblock %}

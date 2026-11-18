@@ -11,5 +11,31 @@
         "profile_picture": "default_avatar.png",
         "created_at": "2026-11-18T20:20:00+00:00",
         "is_active": true
+    },
+    {
+        "user_id": "u-47fa9c3151",
+        "username": "priyankjain",
+        "email": "sj4597225@gmail.com",
+        "full_name": "Priyank Jain",
+        "password_hash": "scrypt:32768:8:1$qGtah6ZAMOtRZodT$feae35ad2759e9527b0d88eeac879f3f5b631c44c5bc2657212da48aca47f8bd446fd065375f2ae3553914a625e211958712559e6cc3ff0348c11968fa273b1f",
+        "role": "user",
+        "bio": "New stargazing member of Cosmic Connect.",
+        "zodiac_sign": "♏ Scorpio (Water)",
+        "profile_picture": "default_avatar.png",
+        "created_at": "2026-11-18T17:00:43.112683+00:00",
+        "is_active": true
+    },
+    {
+        "user_id": "u-2e2d5b2a63",
+        "username": "palki_a",
+        "email": "palkis783@gmail.com",
+        "full_name": "palki",
+        "password_hash": "scrypt:32768:8:1$vYuK69QOhl6fOH0n$58ea9edacf3c8b66cfcb868001dc7ccfb88423d5bdc4340077211128c11443b63a9cdc3fd890158eb5400360b8f323fd98aaef27ee30f536f13fccab0ade4dee",
+        "role": "user",
+        "bio": "New stargazing member of Cosmic Connect.",
+        "zodiac_sign": "♐ Sagittarius (Fire)",
+        "profile_picture": "default_avatar.png",
+        "created_at": "2026-11-18T17:22:50.451388+00:00",
+        "is_active": true
     }
 ]

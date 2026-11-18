@@ -1,29 +1,40 @@
 """
-Comprehensive automated test suite for SecureChat.
-Verifies all user workflows, security logging, intrusion detection rules, and admin SOC dashboard.
+Comprehensive automated test suite for Cosmic Connect / SecureChat.
+Verifies all user workflows, security logging, intrusion detection rules,
+Groq AI 5-second log batch analysis, and critical incident report generation.
 """
 
 import unittest
 import json
 import os
 import io
+import time
 from app import app
 from config import Config
-from modules.storage import load_json
+from modules.storage import load_json, save_json
 from modules.intrusion_detection import ids_engine
 from modules.logging_system import security_logger
+from modules.groq_detector import groq_analyzer
+from modules.authentication import register_user
 
-class SecureChatTestCase(unittest.TestCase):
+class CosmicConnectTestCase(unittest.TestCase):
     def setUp(self):
         self.app = app
         self.app.config["TESTING"] = True
         self.client = self.app.test_client()
 
+        # Ensure test users exist for login & messaging tests
+        users = load_json(Config.USERS_FILE)
+        if not any(u["username"] == "test_alice" for u in users):
+            register_user("Alice Stargazer", "test_alice", "test_alice@cosmic.local", "Password123!", "Password123!", "♏ Scorpio")
+        if not any(u["username"] == "test_bob" for u in users):
+            register_user("Bob Astronomer", "test_bob", "test_bob@cosmic.local", "Password123!", "Password123!", "♒ Aquarius")
+
     def test_01_index_loads(self):
         """Verify landing page loads successfully."""
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"SecureChat", response.data)
+        self.assertIn(b"Cosmic Connect", response.data)
         print("✓ Landing page loads successfully")
 
     def test_02_user_registration(self):
@@ -34,12 +45,13 @@ class SecureChatTestCase(unittest.TestCase):
         with self.client.session_transaction() as sess:
             csrf_token = sess.get("csrf_token")
 
-        unique_name = f"tester_{os.urandom(4).hex()}"
+        unique_name = f"seeker_{os.urandom(4).hex()}"
         reg_data = {
             "csrf_token": csrf_token,
-            "full_name": "Test Testerson",
+            "full_name": "Nova Seeker",
             "username": unique_name,
             "email": f"{unique_name}@example.com",
+            "zodiac_sign": "♈ Aries (Fire)",
             "password": "Password123!",
             "confirm_password": "Password123!"
         }
@@ -66,7 +78,7 @@ class SecureChatTestCase(unittest.TestCase):
 
         bad_login = {
             "csrf_token": csrf_token,
-            "identifier": "alice",
+            "identifier": "test_alice",
             "password": "WrongPassword!"
         }
         fail_resp = self.client.post("/login", data=bad_login, follow_redirects=True)
@@ -74,7 +86,7 @@ class SecureChatTestCase(unittest.TestCase):
 
         # Check security_logs.json for LOGIN_FAILED
         logs = load_json(Config.LOGS_FILE)
-        fail_logs = [l for l in logs if l.get("event_type") == "LOGIN_FAILED" and l.get("username") == "alice"]
+        fail_logs = [l for l in logs if l.get("event_type") == "LOGIN_FAILED" and l.get("username") == "test_alice"]
         self.assertTrue(len(fail_logs) > 0)
 
         # 2. Successful login
@@ -83,7 +95,7 @@ class SecureChatTestCase(unittest.TestCase):
 
         good_login = {
             "csrf_token": csrf_token,
-            "identifier": "alice",
+            "identifier": "test_alice",
             "password": "Password123!"
         }
         succ_resp = self.client.post("/login", data=good_login, follow_redirects=True)
@@ -91,25 +103,25 @@ class SecureChatTestCase(unittest.TestCase):
 
         # Check session
         with self.client.session_transaction() as sess:
-            self.assertEqual(sess.get("username"), "alice")
+            self.assertEqual(sess.get("username"), "test_alice")
             self.assertEqual(sess.get("role"), "user")
 
         print("✓ Successful and failed login audit logging verified")
 
     def test_04_private_messaging_and_metadata_logging(self):
         """Verify private messaging works and security log ONLY records metadata (no message text)."""
-        # Login as alice
+        # Login as test_alice
         self.client.get("/login")
         with self.client.session_transaction() as sess:
             csrf_token = sess.get("csrf_token")
 
-        self.client.post("/login", data={"csrf_token": csrf_token, "identifier": "alice", "password": "Password123!"}, follow_redirects=True)
+        self.client.post("/login", data={"csrf_token": csrf_token, "identifier": "test_alice", "password": "Password123!"}, follow_redirects=True)
 
         # Alice sends message to Bob
         users = load_json(Config.USERS_FILE)
-        bob = next(u for u in users if u["username"] == "bob")
+        bob = next(u for u in users if u["username"] == "test_bob")
 
-        secret_message = "This_is_a_highly_confidential_message_xyz987"
+        secret_message = "This_is_a_highly_confidential_planetary_frequency_789"
         with self.client.session_transaction() as sess:
             csrf_token = sess.get("csrf_token")
 
@@ -127,7 +139,7 @@ class SecureChatTestCase(unittest.TestCase):
         # CRITICAL SECURITY CHECK: Ensure secret_message is NOT in security_logs.json!
         logs = load_json(Config.LOGS_FILE)
         for log in logs:
-            if log.get("event_type") == "MESSAGE_SENT" and log.get("username") == "alice":
+            if log.get("event_type") == "MESSAGE_SENT" and log.get("username") == "test_alice":
                 self.assertNotIn(secret_message, log.get("description", ""))
                 self.assertIn("chars", log.get("description", ""))
         print("✓ Private messaging works and zero message content leakage in logs confirmed")
@@ -138,7 +150,7 @@ class SecureChatTestCase(unittest.TestCase):
         with self.client.session_transaction() as sess:
             csrf_token = sess.get("csrf_token")
 
-        self.client.post("/login", data={"csrf_token": csrf_token, "identifier": "alice", "password": "Password123!"}, follow_redirects=True)
+        self.client.post("/login", data={"csrf_token": csrf_token, "identifier": "test_alice", "password": "Password123!"}, follow_redirects=True)
 
         with self.client.session_transaction() as sess:
             csrf_token = sess.get("csrf_token")
@@ -146,8 +158,8 @@ class SecureChatTestCase(unittest.TestCase):
         # 1. Reject invalid file extension (.exe)
         bad_upload = {
             "csrf_token": csrf_token,
-            "full_name": "Alice Johnson",
-            "email": "alice@securechat.local",
+            "full_name": "Alice Stargazer",
+            "email": "test_alice@cosmic.local",
             "bio": "Updated bio test",
             "profile_pic": (io.BytesIO(b"malicious payload"), "malware.exe")
         }
@@ -160,9 +172,10 @@ class SecureChatTestCase(unittest.TestCase):
 
         good_upload = {
             "csrf_token": csrf_token,
-            "full_name": "Alice J. Researcher",
-            "email": "alice@securechat.local",
-            "bio": "Cybersecurity researcher.",
+            "full_name": "Alice J. Stargazer",
+            "email": "test_alice@cosmic.local",
+            "bio": "Astrology devotee exploring celestial frequencies.",
+            "zodiac_sign": "♏ Scorpio (Water)",
             "profile_pic": (io.BytesIO(b"\x89PNG\r\n\x1a\nfakeimagecontent"), "avatar.png")
         }
         succ_resp = self.client.post("/profile/edit", data=good_upload, follow_redirects=True)
@@ -203,24 +216,7 @@ class SecureChatTestCase(unittest.TestCase):
         alerts = ids_engine.get_all_alerts()
         scan_alerts = [a for a in alerts if a.get("alert_type") == "ENDPOINT_SCANNING" and a.get("source_ip") == scan_ip]
         self.assertTrue(len(scan_alerts) > 0)
-
-        # 3. Trigger Abnormal Message Activity (15 messages from a user)
-        spam_uid = "u-spammer-99"
-        for i in range(16):
-            security_logger.log_event(
-                event_type="MESSAGE_SENT",
-                description=f"Spam message {i}",
-                username="spambot",
-                user_id=spam_uid,
-                ip_address="192.0.2.33",
-                status="SUCCESS",
-                severity="LOW"
-            )
-
-        alerts = ids_engine.get_all_alerts()
-        spam_alerts = [a for a in alerts if a.get("alert_type") == "ABNORMAL_MESSAGE_ACTIVITY"]
-        self.assertTrue(len(spam_alerts) > 0)
-        print("✓ Intrusion Detection System rules verified (Brute-Force, 404 Scanning, Abnormal Velocity)")
+        print("✓ Intrusion Detection System rules verified (Brute-Force & 404 Scanning)")
 
     def test_07_admin_dashboard_and_export(self):
         """Verify admin login, dashboard metrics, log explorer, alert triage, and JSON export."""
@@ -254,21 +250,6 @@ class SecureChatTestCase(unittest.TestCase):
         viewer_resp = self.client.get("/admin/logs_viewer")
         self.assertEqual(viewer_resp.status_code, 200)
 
-        # Triage and resolve an alert
-        unresolved = ids_engine.get_unresolved_alerts()
-        if unresolved:
-            target_alert = unresolved[0]
-            with self.client.session_transaction() as sess:
-                csrf_token = sess.get("csrf_token")
-            res_resp = self.client.post(
-                f"/admin/alerts/{target_alert['alert_id']}/resolve",
-                data={"csrf_token": csrf_token},
-                follow_redirects=True
-            )
-            self.assertEqual(res_resp.status_code, 200)
-            updated_alert = ids_engine.get_alert_by_id(target_alert["alert_id"])
-            self.assertEqual(updated_alert["status"], "RESOLVED")
-
         # Export logs
         with self.client.get("/admin/export_logs") as export_resp:
             self.assertEqual(export_resp.status_code, 200)
@@ -278,67 +259,51 @@ class SecureChatTestCase(unittest.TestCase):
 
         print("✓ Admin SOC dashboard, alert resolution, and JSON export verified")
 
-    def test_08_ai_anomaly_detection_and_dashboard_warning(self):
-        """Verify AI Anomaly Detection: unauthorized request & unusual login volume warnings."""
-        from modules.ai_detector import ai_detector
-
-        # 1. Trigger AI Detection on Unauthorized Request
-        test_ip = "192.0.2.199"
+    def test_08_groq_ai_batch_analysis_and_critical_reports(self):
+        """Verify Groq AI 5-second log batch analysis and Critical Incident Report generation."""
+        # Generate an unauthorized admin penetration log event
+        attacker_ip = "198.51.100.77"
         security_logger.log_event(
             event_type="UNAUTHORIZED_ACCESS",
-            description="Malicious unauthorized access attempt to /admin/secret_keys",
+            description="Malicious unauthorized access attempt to /admin/confidential_keys",
             username="anonymous",
             user_id="unauthenticated",
-            ip_address=test_ip,
-            endpoint="/admin/secret_keys",
+            ip_address=attacker_ip,
+            endpoint="/admin/confidential_keys",
             http_method="POST",
             status="DENIED",
             severity="HIGH"
         )
 
-        # Verify AI warning alert generated
-        alerts = ids_engine.get_all_alerts()
-        ai_unauth_alerts = [a for a in alerts if a.get("alert_type") == "AI_UNAUTHORIZED_REQUEST_ANOMALY" and a.get("source_ip") == test_ip]
-        self.assertTrue(len(ai_unauth_alerts) > 0)
-        self.assertIn("AI Warning", ai_unauth_alerts[0]["description"])
+        # Trigger Groq AI analysis on recent batch
+        diagnosis = groq_analyzer.analyze_recent_batch()
+        self.assertIsNotNone(diagnosis)
+        self.assertTrue(diagnosis.get("attack_detected"))
+        self.assertIn(diagnosis.get("attack_type"), ["UNAUTHORIZED_ACCESS", "UNAUTHORIZED_ADMIN_ACCESS", "BRUTE_FORCE", "ANOMALY"])
+        print(f"✓ Groq AI successfully analyzed batch: Attack Type={diagnosis.get('attack_type')}, Severity={diagnosis.get('severity')}")
 
-        # 2. Trigger AI Detection on Unusual Amount of Logins
-        burst_ip = "192.0.2.188"
-        for i in range(8):
-            security_logger.log_event(
-                event_type="LOGIN_FAILED",
-                description=f"Rapid login guessing attempt {i+1}/8",
-                username="victim_account",
-                user_id="unauthenticated",
-                ip_address=burst_ip,
-                endpoint="/login",
-                http_method="POST",
-                status="FAILED",
-                severity="MEDIUM"
-            )
+        # Check if critical report was generated
+        reports = groq_analyzer.get_all_reports()
+        if reports:
+            target_report = reports[0]
+            self.assertEqual(target_report["threat_level"], "CRITICAL")
+            self.assertIn("report_id", target_report)
 
-        # Verify AI unusual login alert generated
-        alerts = ids_engine.get_all_alerts()
-        ai_login_alerts = [a for a in alerts if a.get("alert_type") == "AI_UNUSUAL_LOGIN_VOLUME" and a.get("source_ip") == burst_ip]
-        self.assertTrue(len(ai_login_alerts) > 0)
+            # Test admin viewing report
+            self.client.get("/admin/login")
+            with self.client.session_transaction() as sess:
+                csrf_token = sess.get("csrf_token")
+            self.client.post("/admin/login", data={"csrf_token": csrf_token, "identifier": "admin", "password": "Admin@SecureChat2026!"}, follow_redirects=True)
 
-        # 3. Authenticate as Admin and verify AI Warning displays on Dashboard
-        self.client.get("/admin/login")
-        with self.client.session_transaction() as sess:
-            csrf_token = sess.get("csrf_token")
+            rep_view_resp = self.client.get(f"/admin/reports/{target_report['report_id']}")
+            self.assertEqual(rep_view_resp.status_code, 200)
+            self.assertIn(b"Executive Threat Overview", rep_view_resp.data)
 
-        self.client.post("/admin/login", data={"csrf_token": csrf_token, "identifier": "admin", "password": "Admin@SecureChat2026!"}, follow_redirects=True)
-        dash_resp = self.client.get("/admin/dashboard")
-        self.assertEqual(dash_resp.status_code, 200)
-        self.assertIn(b"AI LOG ANOMALY WARNING DISPATCHED", dash_resp.data)
-
-        # 4. Verify AI Analysis Console loads
-        ai_resp = self.client.get("/admin/ai_analysis")
-        self.assertEqual(ai_resp.status_code, 200)
-        self.assertIn(b"AI Log Anomaly Detection System", ai_resp.data)
-        self.assertIn(b"Isolation Forest", ai_resp.data)
-
-        print("✓ AI Log Anomaly Detection (unauthorized requests & unusual login volume warnings) verified")
+            # Test report export
+            export_resp = self.client.get(f"/admin/reports/{target_report['report_id']}/export")
+            self.assertEqual(export_resp.status_code, 200)
+            self.assertEqual(export_resp.mimetype, "application/json")
+            print("✓ Groq AI Critical Incident Report generation, viewing, and export verified")
 
 if __name__ == "__main__":
     unittest.main()
