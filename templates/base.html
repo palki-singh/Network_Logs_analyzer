@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cosmic Connect - Astrological & Universe Messaging{% endblock %}</title>
+    <meta name="description" content="Cosmic Connect (built on SecureChat Architecture) - Private celestial messaging across constellations.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Main Cosmic Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="brand-logo">
+                <span class="cosmic-icon">🌌</span>
+                <span class="brand-title">Cosmic Connect</span>
+                <span class="brand-badge">✨ Starlit Orbit</span>
+            </a>
+
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('index') }}">🪐 Home</a></li>
+                    {% if session.get('user_id') %}
+                        <li><a href="{{ url_for('users_discovery') }}">🔮 Cosmic Seekers</a></li>
+                        <li><a href="{{ url_for('chat_index') }}">💬 Astral Chat</a></li>
+                        <li><a href="{{ url_for('profile') }}">⭐ Profile ({{ session.get('username') }})</a></li>
+                        <li><a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">Sign Out</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}">Sign In</a></li>
+                        <li><a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">✨ Join Orbit</a></li>
+                    {% endif %}
+
+                    {% if session.get('role') == 'admin' %}
+                        <li><a href="{{ url_for('admin_dashboard') }}" class="nav-admin-btn">🔭 Observatory SOC</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('admin_login') }}" class="nav-admin-btn">🔭 Observatory Portal</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Body -->
+    <main class="main-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Cosmic Footer -->
+    <footer class="footer">
+        <p>🌌 <strong>Cosmic Connect</strong> &bull; Communicating Across Constellations & Planetary Vibrations &bull; &copy; 2026 Cosmic Connect</p>
+        <p style="font-size: 0.78rem; margin-top: 0.4rem; color: #64748b;">
+            SecureChat SOC Architecture &bull; All stellar transmissions audited in local celestial JSON logs.
+            <a href="{{ url_for('admin_login') }}" style="margin-left: 0.5rem; color: #a855f7;">🔭 Observatory Access</a>
+        </p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

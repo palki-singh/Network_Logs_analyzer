@@ -1,0 +1,30 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}JSON Log Viewer - SOC Security Center{% endblock %}
+
+{% block content %}
+<div class="admin-topbar">
+    <div class="admin-page-title">
+        <h1>JSON Raw Log File Viewer</h1>
+        <p>Direct view of <code>data/security_logs.json</code> stored on the local filesystem</p>
+    </div>
+    <div class="admin-actions">
+        <a href="{{ url_for('admin_export_logs') }}" class="btn btn-secondary btn-sm" style="background: #1f2937; color: #38bdf8; border-color: #374151;">📥 Download security_logs.json</a>
+        <a href="{{ url_for('admin_export_alerts') }}" class="btn btn-secondary btn-sm" style="background: #1f2937; color: #38bdf8; border-color: #374151;">📥 Download security_alerts.json</a>
+    </div>
+</div>
+
+<div class="dash-card">
+    <div class="dash-card-header">
+        <h2>File: data/security_logs.json ({{ file_size_kb }} KB, {{ record_count }} records)</h2>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('fullJsonCode').innerText); alert('Copied entire JSON file to clipboard!');" class="btn btn-secondary btn-sm" style="background: transparent; color: #38bdf8; border-color: #334155;">
+            📋 Copy Entire JSON
+        </button>
+    </div>
+    <div style="padding: 1.5rem;">
+        <div class="json-viewer-container" style="max-height: 700px;">
+            <pre><code id="fullJsonCode">{{ raw_json_data }}</code></pre>
+        </div>
+    </div>
+</div>
+{% endblock %}

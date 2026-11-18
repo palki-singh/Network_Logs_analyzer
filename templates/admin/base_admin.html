@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SOC Security Center - SecureChat{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        <!-- Cybersecurity Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <span class="shield-icon">🔭</span>
+                <div>
+                    <div class="sidebar-title">Cosmic Connect</div>
+                    <div class="sidebar-subtitle">Observatory SOC Center</div>
+                </div>
+            </div>
+
+            <ul class="sidebar-nav">
+                <li>
+                    <a href="{{ url_for('admin_dashboard') }}" class="{% if active_tab == 'dashboard' %}active{% endif %}">
+                        <span class="nav-icon">📊</span> Overview
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin_logs') }}" class="{% if active_tab == 'logs' %}active{% endif %}">
+                        <span class="nav-icon">📋</span> Live Activity Logs
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin_alerts') }}" class="{% if active_tab == 'alerts' %}active{% endif %}">
+                        <span class="nav-icon">🚨</span> Security Alerts
+                        {% if unresolved_count and unresolved_count > 0 %}
+                            <span class="sidebar-badge badge-alert">{{ unresolved_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin_ai_analysis') }}" class="{% if active_tab == 'ai_analysis' %}active{% endif %}">
+                        <span class="nav-icon">🤖</span> AI Threat Scanner
+                        {% if ai_warning_count and ai_warning_count > 0 %}
+                            <span class="sidebar-badge" style="background: linear-gradient(135deg, #ef4444, #f59e0b); color: #fff; font-weight: 800; animation: pulse-cosmic 2s infinite;">{{ ai_warning_count }} WARN</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin_users') }}" class="{% if active_tab == 'users' %}active{% endif %}">
+                        <span class="nav-icon">👥</span> User Monitoring
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin_json_viewer') }}" class="{% if active_tab == 'json_viewer' %}active{% endif %}">
+                        <span class="nav-icon">🗂️</span> JSON Log Viewer
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin_simulator') }}" class="{% if active_tab == 'simulator' %}active{% endif %}">
+                        <span class="nav-icon">⚡</span> Attack Simulator
+                    </a>
+                </li>
+                <li style="margin-top: 1rem; border-top: 1px solid var(--dash-border); padding-top: 0.75rem;">
+                    <a href="{{ url_for('index') }}" target="_blank">
+                        <span class="nav-icon">🌌</span> Open Cosmic Connect ↗
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="admin-user-pill">
+                    <span class="admin-status-dot"></span>
+                    <span>Admin: <strong>{{ session.get('username') }}</strong></span>
+                </div>
+                <a href="{{ url_for('admin_logout') }}" style="color: #f87171; text-decoration: none; font-size: 0.8rem; font-weight: 600; display: inline-block;">
+                    🚪 Sign Out of Admin
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard Content -->
+        <main class="admin-content">
+            <!-- Flash notification messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div style="margin-bottom: 1.5rem;">
+                        {% for category, message in messages %}
+                            <div style="padding: 0.85rem 1.25rem; border-radius: 6px; font-size: 0.9rem; margin-bottom: 0.5rem; background: #1e293b; border-left: 4px solid {% if category == 'success' %}#10b981{% elif category == 'danger' %}#ef4444{% else %}#38bdf8{% endif %}; color: #f8fafc;">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

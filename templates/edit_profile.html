@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Astral Profile - Cosmic Connect{% endblock %}
+
+{% block content %}
+<div class="form-card" style="max-width: 560px;">
+    <div class="form-header">
+        <div style="font-size: 2.2rem; margin-bottom: 0.35rem; filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.6));">⭐</div>
+        <h2>Edit Astral Profile</h2>
+        <p>Update your celestial identity, zodiac alignment, and avatar</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('edit_profile') }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+
+        <div class="form-group">
+            <label for="username">Cosmic Username (Fixed)</label>
+            <input type="text" id="username" class="form-control" value="{{ user.username }}" disabled style="background-color: rgba(10, 11, 26, 0.4); opacity: 0.7; cursor: not-allowed;">
+            <div class="form-hint">Usernames are anchored to your celestial birth chart.</div>
+        </div>
+
+        <div class="form-group">
+            <label for="full_name">Full Celestial Name</label>
+            <input type="text" id="full_name" name="full_name" class="form-control" value="{{ user.full_name }}" required minlength="2" maxlength="60">
+        </div>
+
+        <div class="form-group">
+            <label for="zodiac_sign">Zodiac / Astrological Sign</label>
+            <select id="zodiac_sign" name="zodiac_sign" class="form-control">
+                <option value="♈ Aries (Fire)" {% if user.zodiac_sign and 'Aries' in user.zodiac_sign %}selected{% endif %}>♈ Aries (Fire) • Mar 21 – Apr 19</option>
+                <option value="♉ Taurus (Earth)" {% if user.zodiac_sign and 'Taurus' in user.zodiac_sign %}selected{% endif %}>♉ Taurus (Earth) • Apr 20 – May 20</option>
+                <option value="♊ Gemini (Air)" {% if user.zodiac_sign and 'Gemini' in user.zodiac_sign %}selected{% endif %}>♊ Gemini (Air) • May 21 – Jun 20</option>
+                <option value="♋ Cancer (Water)" {% if user.zodiac_sign and 'Cancer' in user.zodiac_sign %}selected{% endif %}>♋ Cancer (Water) • Jun 21 – Jul 22</option>
+                <option value="♌ Leo (Fire)" {% if user.zodiac_sign and 'Leo' in user.zodiac_sign %}selected{% endif %}>♌ Leo (Fire) • Jul 23 – Aug 22</option>
+                <option value="♍ Virgo (Earth)" {% if user.zodiac_sign and 'Virgo' in user.zodiac_sign %}selected{% endif %}>♍ Virgo (Earth) • Aug 23 – Sep 22</option>
+                <option value="♎ Libra (Air)" {% if user.zodiac_sign and 'Libra' in user.zodiac_sign %}selected{% endif %}>♎ Libra (Air) • Sep 23 – Oct 22</option>
+                <option value="♏ Scorpio (Water)" {% if user.zodiac_sign and 'Scorpio' in user.zodiac_sign %}selected{% endif %}>♏ Scorpio (Water) • Oct 23 – Nov 21</option>
+                <option value="♐ Sagittarius (Fire)" {% if user.zodiac_sign and 'Sagittarius' in user.zodiac_sign %}selected{% endif %}>♐ Sagittarius (Fire) • Nov 22 – Dec 21</option>
+                <option value="♑ Capricorn (Earth)" {% if user.zodiac_sign and 'Capricorn' in user.zodiac_sign %}selected{% endif %}>♑ Capricorn (Earth) • Dec 22 – Jan 19</option>
+                <option value="♒ Aquarius (Air)" {% if user.zodiac_sign and 'Aquarius' in user.zodiac_sign %}selected{% endif %}>♒ Aquarius (Air) • Jan 20 – Feb 18</option>
+                <option value="♓ Pisces (Water)" {% if user.zodiac_sign and 'Pisces' in user.zodiac_sign %}selected{% endif %}>♓ Pisces (Water) • Feb 19 – Mar 20</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Astral Email Address</label>
+            <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="bio">Celestial Bio & Horoscope Notes</label>
+            <textarea id="bio" name="bio" class="form-control" maxlength="300" placeholder="Share your astrological passions, natal placements, or favorite constellations...">{{ user.bio }}</textarea>
+            <div class="form-hint">Max 300 characters.</div>
+        </div>
+
+        <div class="form-group">
+            <label for="profile_pic">Upload New Astral Avatar</label>
+            <input type="file" id="profile_pic" name="profile_pic" class="form-control" accept=".png,.jpg,.jpeg,.gif">
+            <div class="form-hint">Formats: PNG, JPG, JPEG, GIF. Max file size: 2MB.</div>
+        </div>
+
+        <div style="display: flex; gap: 0.85rem; margin-top: 1.75rem;">
+            <button type="submit" class="btn btn-primary" style="flex: 1;">✨ Save Celestial Changes</button>
+            <a href="{{ url_for('profile') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

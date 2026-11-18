@@ -1,0 +1,350 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Dashboard Overview - SOC Security Center{% endblock %}
+
+{% block content %}
+<div class="admin-topbar">
+    <div class="admin-page-title">
+        <h1>Cybersecurity SOC Overview</h1>
+        <p>Real-time telemetry, threat detection analysis, and event log auditing</p>
+    </div>
+    <div class="admin-actions">
+        <a href="{{ url_for('admin_ai_analysis') }}" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #7c3aed, #0284c7); border: none;">🤖 AI Threat Scanner</a>
+        <a href="{{ url_for('admin_export_logs') }}" class="btn btn-secondary btn-sm" style="background: #1f2937; color: #38bdf8; border-color: #374151;">📥 Export JSON Logs</a>
+        <a href="{{ url_for('admin_simulator') }}" class="btn btn-primary btn-sm" style="background: #0284c7; border: none;">⚡ Threat Simulator</a>
+    </div>
+</div>
+
+<!-- AI Threat Warning Alert Banner (Visible when anomalies are flagged) -->
+{% if metrics.ai_telemetry and metrics.ai_telemetry.active_warnings %}
+<div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(185, 28, 28, 0.35)); border: 2px solid #ef4444; border-radius: 8px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.75rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 2.2rem; filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.7));">🚨</span>
+            <div>
+                <h3 style="color: #ffffff; font-size: 1.25rem; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
+                    AI LOG ANOMALY WARNING DISPATCHED
+                    <span style="background: #ef4444; color: #fff; font-size: 0.75rem; padding: 0.15rem 0.55rem; border-radius: 9999px;">{{ metrics.ai_telemetry.active_warning_count }} ACTIVE</span>
+                </h3>
+                <p style="color: #fca5a5; font-size: 0.88rem;">
+                    The AI Log Anomaly Detection System detected <strong>unauthorized access attempts</strong> or <strong>unusual login volumes</strong>!
+                </p>
+            </div>
+        </div>
+        <a href="{{ url_for('admin_ai_analysis') }}" class="btn btn-sm" style="background: #dc2626; color: #fff; font-weight: 700; border: none; padding: 0.5rem 1rem;">
+            🤖 Inspect AI Anomaly Radar &rarr;
+        </a>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+        {% for warn in metrics.ai_telemetry.active_warnings %}
+        <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(239, 68, 68, 0.45); border-radius: 6px; padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <div style="font-size: 0.85rem; color: #ffffff; max-width: 80%;">
+                <span class="badge-sev badge-sev-high" style="margin-right: 0.4rem;">{{ warn.alert_type }}</span>
+                <span>{{ warn.description }}</span>
+                <span style="font-size: 0.72rem; color: #94a3b8; margin-left: 0.5rem;">[{{ warn.timestamp[:19].replace('T', ' ') }} UTC]</span>
+            </div>
+            <form method="POST" action="{{ url_for('admin_resolve_alert', alert_id=warn.alert_id) }}" style="display: inline;">
+                <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+                <button type="submit" class="btn btn-sm" style="background: #059669; color: #fff; font-size: 0.75rem; padding: 0.3rem 0.75rem; border: none;">
+                    ✓ Resolve Warning
+                </button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Primary Telemetry Stat Cards -->
+<div class="stat-grid">
+    <div class="stat-card glow-blue">
+        <div class="stat-card-header">
+            <span class="stat-label">Registered Users</span>
+            <span class="stat-icon">👥</span>
+        </div>
+        <div class="stat-value">{{ metrics.total_users }}</div>
+        <div class="stat-subtext">Active community profiles</div>
+    </div>
+
+    <div class="stat-card glow-green">
+        <div class="stat-card-header">
+            <span class="stat-label">Successful Logins</span>
+            <span class="stat-icon">🔑</span>
+        </div>
+        <div class="stat-value">{{ metrics.successful_logins }}</div>
+        <div class="stat-subtext">Of {{ metrics.total_login_attempts }} total attempts</div>
+    </div>
+
+    <div class="stat-card glow-amber">
+        <div class="stat-card-header">
+            <span class="stat-label">Failed Logins</span>
+            <span class="stat-icon">⚠️</span>
+        </div>
+        <div class="stat-value" style="color: #fbbf24;">{{ metrics.failed_logins }}</div>
+        <div class="stat-subtext">Monitored for brute force</div>
+    </div>
+
+    <div class="stat-card glow-red">
+        <div class="stat-card-header">
+            <span class="stat-label">Unresolved Alerts</span>
+            <span class="stat-icon">🚨</span>
+        </div>
+        <div class="stat-value">{{ metrics.unresolved_alerts }}</div>
+        <div class="stat-subtext">Requires analyst triage</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <span class="stat-label">Total Security Events</span>
+            <span class="stat-icon">📋</span>
+        </div>
+        <div class="stat-value">{{ metrics.total_logs }}</div>
+        <div class="stat-subtext">Logged in security_logs.json</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <span class="stat-label">Messages Monitored</span>
+            <span class="stat-icon">💬</span>
+        </div>
+        <div class="stat-value">{{ metrics.total_messages }}</div>
+        <div class="stat-subtext">Metadata logged (zero privacy breach)</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <span class="stat-label">Suspicious Activities</span>
+            <span class="stat-icon">🛑</span>
+        </div>
+        <div class="stat-value" style="color: #f87171;">{{ metrics.suspicious_activities }}</div>
+        <div class="stat-subtext">High or Critical severity events</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <span class="stat-label">IDS Engine Status</span>
+            <span class="stat-icon">🛡️</span>
+        </div>
+        <div class="stat-value" style="color: #34d399; font-size: 1.5rem; line-height: 2rem;">ONLINE</div>
+        <div class="stat-subtext">6 Active Detection Rules</div>
+    </div>
+
+    <div class="stat-card" style="border-top: 3px solid #8b5cf6;">
+        <div class="stat-card-header">
+            <span class="stat-label">AI Anomaly Engine</span>
+            <span class="stat-icon">🤖</span>
+        </div>
+        <div class="stat-value" style="font-size: 1.5rem; line-height: 2rem;">
+            {% if metrics.ai_telemetry.active_warning_count > 0 %}
+                <span style="color: #ef4444; font-weight: 800;">{{ metrics.ai_telemetry.active_warning_count }} WARNINGS</span>
+            {% else %}
+                <span style="color: #34d399;">ALL CLEAR</span>
+            {% endif %}
+        </div>
+        <div class="stat-subtext">Isolation Forest ML Active</div>
+    </div>
+</div>
+
+<!-- AI Machine Learning Anomaly Detection Telemetry Card -->
+<div class="dash-card" style="border: 1px solid rgba(139, 92, 246, 0.4); background: linear-gradient(135deg, rgba(19, 21, 56, 0.85), rgba(11, 13, 38, 0.85));">
+    <div class="dash-card-header" style="border-bottom: 1px solid rgba(139, 92, 246, 0.25);">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 1.5rem;">🤖</span>
+            <div>
+                <h2>AI Log Anomaly Detection & Threat Warning System</h2>
+                <p style="font-size: 0.78rem; color: var(--dash-text-muted); margin-top: 2px;">
+                    Powered by Machine Learning (Isolation Forest) with real-time vector behavioral analysis
+                </p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 0.65rem;">
+            <a href="{{ url_for('admin_ai_analysis') }}" class="btn btn-sm btn-primary" style="background: linear-gradient(135deg, #7c3aed, #0284c7); border: none;">
+                Inspect AI Confidence Radar &rarr;
+            </a>
+        </div>
+    </div>
+    <div style="padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem;">
+        <div style="background: rgba(10, 11, 30, 0.65); padding: 1.15rem; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.2);">
+            <div style="font-size: 0.78rem; text-transform: uppercase; font-weight: 700; color: #c084fc; margin-bottom: 0.35rem;">
+                🛡️ AI Trigger 1: Unauthorized Requests
+            </div>
+            <div style="font-size: 0.88rem; color: #f1f5f9; margin-bottom: 0.5rem;">
+                Monitors route access vectors. If an unauthenticated user or invalid privilege attempts to reach protected admin routes or bypass session controls, the AI engine flags an immediate <strong>HIGH/CRITICAL Warning</strong>.
+            </div>
+            <div style="font-size: 0.75rem; color: #34d399;">
+                Status: <strong>Active &bull; Zero-Tolerance Sensitivity</strong>
+            </div>
+        </div>
+
+        <div style="background: rgba(10, 11, 30, 0.65); padding: 1.15rem; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.2);">
+            <div style="font-size: 0.78rem; text-transform: uppercase; font-weight: 700; color: #38bdf8; margin-bottom: 0.35rem;">
+                🔑 AI Trigger 2: Unusual Amounts of Logins
+            </div>
+            <div style="font-size: 0.88rem; color: #f1f5f9; margin-bottom: 0.5rem;">
+                Analyzes login frequency, velocity spikes, and failure ratios across sliding temporal windows. Anomaly detection dispatches a <strong>Warning Alert</strong> to the dashboard when login frequency exceeds statistical norms.
+            </div>
+            <div style="font-size: 0.75rem; color: #38bdf8;">
+                Status: <strong>Active &bull; Sliding Window ML Isolation</strong>
+            </div>
+        </div>
+
+        <div style="background: rgba(10, 11, 30, 0.65); padding: 1.15rem; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.2);">
+            <div style="font-size: 0.78rem; text-transform: uppercase; font-weight: 700; color: #fbbf24; margin-bottom: 0.35rem;">
+                ⚙️ ML Model Architecture
+            </div>
+            <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+                <strong>Algorithm:</strong> Isolation Forest (100 Estimators)<br>
+                <strong>Feature Vectors:</strong> 10-dimensional space<br>
+                <strong>Active Warning Count:</strong> {{ metrics.ai_telemetry.active_warning_count }}<br>
+                <strong>Total AI Flagged Events:</strong> {{ metrics.ai_telemetry.total_ai_alerts }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Severity Distribution Level Bar -->
+<div class="severity-banner">
+    <div>
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: #ffffff; margin-bottom: 0.25rem;">Security Event Severity Distribution</h4>
+        <p style="font-size: 0.78rem; color: var(--dash-text-muted);">Real-time count of logged events categorized by threat impact</p>
+    </div>
+    <div class="severity-pill-group">
+        <div class="sev-counter">
+            <span class="sev-dot dot-low"></span>
+            <span><strong>LOW:</strong> {{ metrics.severity_counts.LOW }}</span>
+        </div>
+        <div class="sev-counter">
+            <span class="sev-dot dot-med"></span>
+            <span><strong>MEDIUM:</strong> {{ metrics.severity_counts.MEDIUM }}</span>
+        </div>
+        <div class="sev-counter">
+            <span class="sev-dot dot-high"></span>
+            <span><strong>HIGH:</strong> {{ metrics.severity_counts.HIGH }}</span>
+        </div>
+        <div class="sev-counter">
+            <span class="sev-dot dot-crit"></span>
+            <span><strong>CRITICAL:</strong> {{ metrics.severity_counts.CRITICAL }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Active Unresolved Alerts Table -->
+<div class="dash-card">
+    <div class="dash-card-header">
+        <h2>Active Security Alerts ({{ metrics.unresolved_alerts }} Unresolved)</h2>
+        <a href="{{ url_for('admin_alerts') }}" class="btn btn-secondary btn-sm" style="background: transparent; color: #38bdf8; border-color: #334155;">View All Alerts →</a>
+    </div>
+    <div class="table-responsive">
+        <table class="dash-table">
+            <thead>
+                <tr>
+                    <th>Alert ID</th>
+                    <th>Timestamp</th>
+                    <th>Alert Type</th>
+                    <th>Source IP</th>
+                    <th>Severity</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if metrics.recent_alerts %}
+                    {% for alert in metrics.recent_alerts %}
+                        <tr>
+                            <td style="font-family: monospace; color: #38bdf8;">{{ alert.alert_id }}</td>
+                            <td>{{ alert.timestamp[:19].replace('T', ' ') }}</td>
+                            <td><span class="badge-event">{{ alert.alert_type }}</span></td>
+                            <td style="font-family: monospace;">{{ alert.source_ip }}</td>
+                            <td>
+                                <span class="badge-sev badge-sev-{{ alert.severity.lower() }}">
+                                    {{ alert.severity }}
+                                </span>
+                            </td>
+                            <td>{{ alert.description }}</td>
+                            <td>
+                                {% if alert.status == 'UNRESOLVED' %}
+                                    <form method="POST" action="{{ url_for('admin_resolve_alert', alert_id=alert.alert_id) }}" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+                                        <button type="submit" class="btn btn-sm btn-primary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; background: #059669; border: none;">
+                                            Resolve
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <span class="badge-status-resolved">RESOLVED</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--dash-text-muted); padding: 2rem;">
+                            No security alerts recorded. System operational within normal parameters.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Recent Security Activity Logs Table -->
+<div class="dash-card">
+    <div class="dash-card-header">
+        <h2>Recent Activity Logs</h2>
+        <a href="{{ url_for('admin_logs') }}" class="btn btn-secondary btn-sm" style="background: transparent; color: #38bdf8; border-color: #334155;">Full Log Explorer →</a>
+    </div>
+    <div class="table-responsive">
+        <table class="dash-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>IP Address</th>
+                    <th>Event Type</th>
+                    <th>Endpoint</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                    <th>Inspect</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if metrics.recent_logs %}
+                    {% for log in metrics.recent_logs %}
+                        <tr>
+                            <td style="white-space: nowrap; font-size: 0.8rem;">{{ log.timestamp[:19].replace('T', ' ') }}</td>
+                            <td><strong>{{ log.username }}</strong></td>
+                            <td style="font-family: monospace; font-size: 0.82rem;">{{ log.ip_address }}</td>
+                            <td><span class="badge-event">{{ log.event_type }}</span></td>
+                            <td style="font-family: monospace; font-size: 0.82rem;">{{ log.endpoint }}</td>
+                            <td>
+                                <span class="badge-sev badge-sev-{{ log.severity.lower() }}">
+                                    {{ log.severity }}
+                                </span>
+                            </td>
+                            <td>
+                                <span style="font-weight: 600; font-size: 0.75rem; color: {% if log.status == 'SUCCESS' %}#34d399{% elif log.status == 'FAILED' or log.status == 'DENIED' %}#f87171{% else %}#fbbf24{% endif %};">
+                                    {{ log.status }}
+                                </span>
+                            </td>
+                            <td style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                {{ log.description }}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin_log_details', log_id=log.log_id) }}" style="color: #38bdf8; text-decoration: none; font-size: 0.8rem; font-weight: 600;">Details</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="9" style="text-align: center; color: var(--dash-text-muted); padding: 2rem;">
+                            No security logs generated yet.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

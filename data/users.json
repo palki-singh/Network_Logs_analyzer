@@ -1,0 +1,15 @@
+[
+    {
+        "user_id": "u-admin-001",
+        "username": "admin",
+        "email": "admin@securechat.local",
+        "full_name": "System Administrator",
+        "password_hash": "scrypt:32768:8:1$GMn7jVkjgROHEl0H$17980fec68bf484a8260faf13319c560156fa4abbb411c99e71f4ae426d26128a676ba283ba2fdc6390fbafba727dcf459cb9cd86e1e803e5188cb2eefd2c657",
+        "role": "admin",
+        "bio": "Lead Cybersecurity Auditor & Observatory Administrator.",
+        "zodiac_sign": "♑ Capricorn (Earth)",
+        "profile_picture": "default_avatar.png",
+        "created_at": "2026-11-18T20:20:00+00:00",
+        "is_active": true
+    }
+]

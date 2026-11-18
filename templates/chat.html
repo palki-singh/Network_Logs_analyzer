@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if active_partner %}
+        Astral Chat with {{ active_partner.full_name }} (@{{ active_partner.username }}) - Cosmic Connect
+    {% else %}
+        Astral Messenger - Cosmic Connect
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+
+    <!-- Left Sidebar: Conversations & Recents -->
+    <aside class="chat-sidebar">
+        <div class="chat-sidebar-header">
+            <h3><span>💬</span> Astral Channels</h3>
+            <a href="{{ url_for('users_discovery') }}" class="btn btn-secondary btn-sm" title="Find new seekers">+ Seek</a>
+        </div>
+
+        <ul class="conversation-list">
+            {% if conversations %}
+                {% for conv in conversations %}
+                    <li>
+                        <a href="{{ url_for('chat_conversation', partner_id=conv.partner.user_id) }}" 
+                           class="conversation-item {% if active_partner and active_partner.user_id == conv.partner.user_id %}active{% endif %}">
+                            <div class="conv-avatar-wrap">
+                                <img src="{{ url_for('static', filename='uploads/' + (conv.partner.profile_picture or 'default_avatar.png')) }}" 
+                                     alt="{{ conv.partner.username }}" 
+                                     class="conv-avatar"
+                                     onerror="this.src='{{ url_for('static', filename='images/default_avatar.png') }}'">
+                            </div>
+                            <div class="conv-details">
+                                <div class="conv-header">
+                                    <span class="conv-name">{{ conv.partner.full_name }}</span>
+                                    <span class="conv-time">{{ conv.last_timestamp[11:16] if conv.last_timestamp else '' }}</span>
+                                </div>
+                                <div class="conv-last-msg">{{ conv.last_message or 'No celestial messages yet' }}</div>
+                            </div>
+                            {% if conv.unread_count > 0 %}
+                                <span class="unread-badge">{{ conv.unread_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <li style="padding: 2.5rem 1.25rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+                    <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🪐</div>
+                    No active stellar channels.<br>
+                    <a href="{{ url_for('users_discovery') }}" style="color: var(--starlight-cyan); text-decoration: none; font-weight: 700; display: inline-block; margin-top: 0.75rem;">
+                        ✨ Find Cosmic Seekers
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </aside>
+
+    <!-- Right Area: Chat Window -->
+    <section class="chat-main">
+        {% if active_partner %}
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="chat-partner-info">
+                    <img src="{{ url_for('static', filename='uploads/' + (active_partner.profile_picture or 'default_avatar.png')) }}" 
+                         alt="{{ active_partner.username }}" 
+                         class="chat-partner-avatar"
+                         onerror="this.src='{{ url_for('static', filename='images/default_avatar.png') }}'">
+                    <div>
+                        <div class="chat-partner-name">{{ active_partner.full_name }}</div>
+                        <div class="chat-partner-sub">
+                            @{{ active_partner.username }} &bull; 
+                            <span>{{ active_partner.zodiac_sign or '✨ Cosmic Explorer' }}</span> &bull; 
+                            <span style="color: #34d399;">Channel Aligned 🟢</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <a href="{{ url_for('view_user_profile', user_id=active_partner.user_id) }}" class="btn btn-secondary btn-sm">Star Chart</a>
+                </div>
+            </div>
+
+            <!-- Messages Stream -->
+            <div class="chat-messages" id="chatMessages">
+                {% if messages %}
+                    {% for msg in messages %}
+                        <div class="message-wrapper {% if msg.sender_id == session.get('user_id') %}sent{% else %}received{% endif %}">
+                            <div class="message-bubble">
+                                {{ msg.content }}
+                            </div>
+                            <div class="message-meta">
+                                <span>{{ msg.sender_username }}</span>
+                                <span>•</span>
+                                <span>{{ msg.timestamp[11:16] if msg.timestamp else '' }}</span>
+                                {% if msg.sender_id == session.get('user_id') %}
+                                    <span style="color: var(--starlight-cyan);">{% if msg.is_read %}✓✓{% else %}✓{% endif %}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="margin: auto; text-align: center; color: var(--text-muted);">
+                        <div style="font-size: 3rem; margin-bottom: 0.5rem;">✨</div>
+                        <p style="font-size: 1.15rem; color: #ffffff; margin-bottom: 0.35rem;">This is the inception of your celestial channel.</p>
+                        <p style="font-size: 0.88rem;">Private transmissions between you and @{{ active_partner.username }} across the cosmos.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Message Input Area -->
+            <div class="chat-input-area">
+                <form method="POST" action="{{ url_for('chat_send_message', partner_id=active_partner.user_id) }}" class="chat-form" id="chatForm">
+                    <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+                    <input type="text" name="content" id="messageInput" class="chat-input" placeholder="Beam a celestial message across the stars..." required maxlength="2000" autocomplete="off" autofocus>
+                    <button type="submit" class="btn btn-primary btn-send">Beam ✨</button>
+                </form>
+            </div>
+
+        {% else %}
+            <!-- Empty State -->
+            <div class="chat-empty-state">
+                <div class="icon">🌌</div>
+                <h3 style="font-size: 1.5rem; color: #ffffff; margin-bottom: 0.65rem; font-weight: 800;">Select a Cosmic Channel</h3>
+                <p style="max-width: 400px; margin-bottom: 1.75rem; color: var(--text-secondary);">Choose a stargazer from your left orbital list or discover new seekers in the community directory to ignite a private astral conversation.</p>
+                <a href="{{ url_for('users_discovery') }}" class="btn btn-primary">🔮 Discover Cosmic Seekers</a>
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if active_partner %}
+<script>
+    // Auto scroll chat to bottom
+    const chatContainer = document.getElementById('chatMessages');
+    function scrollToBottom() {
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    }
+    scrollToBottom();
+
+    // Vanilla JS polling for live updates every 3 seconds
+    const partnerId = "{{ active_partner.user_id }}";
+    const currentUserId = "{{ session.get('user_id') }}";
+    const csrfToken = "{{ session.get('csrf_token') }}";
+
+    async function pollNewMessages() {
+        try {
+            const response = await fetch(`/api/chat/${partnerId}/messages`);
+            if (!response.ok) return;
+            const data = await response.json();
+            if (data && data.messages) {
+                renderMessages(data.messages);
+            }
+        } catch (err) {
+            // Silently ignore network hiccup during polling
+        }
+    }
+
+    function renderMessages(messages) {
+        if (!chatContainer) return;
+        const wasAtBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 60;
+        
+        let html = '';
+        if (messages.length === 0) {
+            html = `<div style="margin: auto; text-align: center; color: var(--text-muted);">
+                        <div style="font-size: 3rem; margin-bottom: 0.5rem;">✨</div>
+                        <p style="font-size: 1.15rem; color: #ffffff; margin-bottom: 0.35rem;">This is the inception of your celestial channel.</p>
+                        <p style="font-size: 0.88rem;">Private transmissions between you and @{{ active_partner.username }} across the cosmos.</p>
+                    </div>`;
+        } else {
+            messages.forEach(msg => {
+                const isSent = msg.sender_id === currentUserId;
+                const timeStr = msg.timestamp ? msg.timestamp.substring(11, 16) : '';
+                const readReceipt = isSent ? (msg.is_read ? '✓✓' : '✓') : '';
+                
+                // Escape HTML
+                const safeContent = escapeHtml(msg.content);
+                
+                html += `
+                    <div class="message-wrapper ${isSent ? 'sent' : 'received'}">
+                        <div class="message-bubble">${safeContent}</div>
+                        <div class="message-meta">
+                            <span>${msg.sender_username}</span>
+                            <span>•</span>
+                            <span>${timeStr}</span>
+                            ${isSent ? `<span style="color: var(--starlight-cyan);">${readReceipt}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        // Update only if changed
+        if (chatContainer.dataset.msgCount !== String(messages.length)) {
+            chatContainer.innerHTML = html;
+            chatContainer.dataset.msgCount = String(messages.length);
+            if (wasAtBottom) scrollToBottom();
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Polling interval
+    const pollInterval = setInterval(pollNewMessages, 3000);
+
+    // Ajax Form Submit for smooth UX
+    const chatForm = document.getElementById('chatForm');
+    const messageInput = document.getElementById('messageInput');
+
+    if (chatForm) {
+        chatForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const content = messageInput.value.trim();
+            if (!content) return;
+
+            messageInput.value = '';
+
+            try {
+                const res = await fetch(`/api/chat/${partnerId}/send`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ content: content, csrf_token: csrfToken })
+                });
+
+                if (res.ok) {
+                    await pollNewMessages();
+                    scrollToBottom();
+                } else {
+                    const errData = await res.json();
+                    alert(errData.error || 'Failed to deliver message.');
+                }
+            } catch (err) {
+                // Fallback to normal form submit if fetch fails
+                chatForm.submit();
+            }
+        });
+    }
+</script>
+{% endif %}
+{% endblock %}

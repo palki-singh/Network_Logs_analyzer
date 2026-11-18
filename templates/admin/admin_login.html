@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOC Administrator Portal - SecureChat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="background-color: #090d16; color: #f3f4f6; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
+
+    <div style="background-color: #111827; border: 1px solid #2d3748; border-radius: 10px; padding: 2.5rem; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+        
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="font-size: 2.75rem; margin-bottom: 0.5rem; filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.4));">🛡️</div>
+            <h1 style="font-size: 1.6rem; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;">SOC Defense Portal</h1>
+            <p style="font-size: 0.85rem; color: #9ca3af; margin-top: 0.25rem;">Authorized Cybersecurity Personnel Only</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div style="margin-bottom: 1.25rem;">
+                    {% for category, message in messages %}
+                        <div style="padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.85rem; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('admin_login') }}">
+            <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #9ca3af; margin-bottom: 0.4rem;">Admin Identifier</label>
+                <input type="text" name="identifier" required autofocus style="width: 100%; padding: 0.75rem 0.9rem; background-color: #0b0f19; border: 1px solid #2d3748; border-radius: 6px; color: #f3f4f6; font-size: 0.95rem; outline: none;" placeholder="admin or admin@securechat.local">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #9ca3af; margin-bottom: 0.4rem;">Security Password</label>
+                <input type="password" name="password" required style="width: 100%; padding: 0.75rem 0.9rem; background-color: #0b0f19; border: 1px solid #2d3748; border-radius: 6px; color: #f3f4f6; font-size: 0.95rem; outline: none;" placeholder="••••••••••••">
+            </div>
+
+            <button type="submit" style="width: 100%; padding: 0.75rem; background: #0284c7; color: #ffffff; font-weight: 700; border: none; border-radius: 6px; cursor: pointer; font-size: 0.95rem; transition: background 0.15s ease;" onmouseover="this.style.background='#0369a1'" onmouseout="this.style.background='#0284c7'">
+                Authenticate & Enter SOC
+            </button>
+        </form>
+
+        <div style="margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid #1f2937; text-align: center; font-size: 0.82rem;">
+            <p style="color: #64748b; margin-bottom: 0.5rem;">Default Demo Admin Credentials:</p>
+            <div style="background: #0b0f19; padding: 0.5rem; border-radius: 4px; font-family: monospace; font-size: 0.78rem; color: #38bdf8;">
+                admin / Admin@SecureChat2026!
+            </div>
+            <div style="margin-top: 1rem;">
+                <a href="{{ url_for('index') }}" style="color: #94a3b8; text-decoration: none;">← Return to Main Website</a>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

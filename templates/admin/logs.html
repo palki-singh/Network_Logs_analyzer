@@ -1,0 +1,119 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Live Activity Logs - SOC Security Center{% endblock %}
+
+{% block content %}
+<div class="admin-topbar">
+    <div class="admin-page-title">
+        <h1>Live Activity Logs & Explorer</h1>
+        <p>Comprehensive chronological security audit records saved in <code>data/security_logs.json</code></p>
+    </div>
+    <div class="admin-actions">
+        <a href="{{ url_for('admin_export_logs') }}" class="btn btn-secondary btn-sm" style="background: #1f2937; color: #38bdf8; border-color: #374151;">📥 Download security_logs.json</a>
+    </div>
+</div>
+
+<!-- Filters Bar -->
+<form method="GET" action="{{ url_for('admin_logs') }}" class="filter-bar">
+    <div style="flex: 1; min-width: 220px;">
+        <input type="text" name="search" value="{{ search_query }}" placeholder="Search username, IP, description, log ID..." class="filter-input" style="width: 100%;">
+    </div>
+
+    <div>
+        <select name="event_type" class="filter-select">
+            <option value="ALL">All Event Types</option>
+            <option value="USER_REGISTER" {% if selected_event == 'USER_REGISTER' %}selected{% endif %}>USER_REGISTER</option>
+            <option value="LOGIN_SUCCESS" {% if selected_event == 'LOGIN_SUCCESS' %}selected{% endif %}>LOGIN_SUCCESS</option>
+            <option value="LOGIN_FAILED" {% if selected_event == 'LOGIN_FAILED' %}selected{% endif %}>LOGIN_FAILED</option>
+            <option value="USER_LOGOUT" {% if selected_event == 'USER_LOGOUT' %}selected{% endif %}>USER_LOGOUT</option>
+            <option value="PROFILE_UPDATED" {% if selected_event == 'PROFILE_UPDATED' %}selected{% endif %}>PROFILE_UPDATED</option>
+            <option value="PROFILE_PICTURE_UPLOAD" {% if selected_event == 'PROFILE_PICTURE_UPLOAD' %}selected{% endif %}>PROFILE_PICTURE_UPLOAD</option>
+            <option value="MESSAGE_SENT" {% if selected_event == 'MESSAGE_SENT' %}selected{% endif %}>MESSAGE_SENT</option>
+            <option value="UNAUTHORIZED_ACCESS" {% if selected_event == 'UNAUTHORIZED_ACCESS' %}selected{% endif %}>UNAUTHORIZED_ACCESS</option>
+            <option value="INVALID_URL_REQUEST" {% if selected_event == 'INVALID_URL_REQUEST' %}selected{% endif %}>INVALID_URL_REQUEST</option>
+            <option value="SUSPICIOUS_ACTIVITY" {% if selected_event == 'SUSPICIOUS_ACTIVITY' %}selected{% endif %}>SUSPICIOUS_ACTIVITY</option>
+            <option value="SESSION_TAMPERING" {% if selected_event == 'SESSION_TAMPERING' %}selected{% endif %}>SESSION_TAMPERING</option>
+            <option value="ADMIN_LOGIN_SUCCESS" {% if selected_event == 'ADMIN_LOGIN_SUCCESS' %}selected{% endif %}>ADMIN_LOGIN_SUCCESS</option>
+            <option value="ADMIN_LOGIN_FAILED" {% if selected_event == 'ADMIN_LOGIN_FAILED' %}selected{% endif %}>ADMIN_LOGIN_FAILED</option>
+        </select>
+    </div>
+
+    <div>
+        <select name="severity" class="filter-select">
+            <option value="ALL">All Severities</option>
+            <option value="LOW" {% if selected_severity == 'LOW' %}selected{% endif %}>LOW</option>
+            <option value="MEDIUM" {% if selected_severity == 'MEDIUM' %}selected{% endif %}>MEDIUM</option>
+            <option value="HIGH" {% if selected_severity == 'HIGH' %}selected{% endif %}>HIGH</option>
+            <option value="CRITICAL" {% if selected_severity == 'CRITICAL' %}selected{% endif %}>CRITICAL</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-sm btn-primary" style="background: #0284c7; border: none;">Apply Filter</button>
+    {% if search_query or (selected_event and selected_event != 'ALL') or (selected_severity and selected_severity != 'ALL') %}
+        <a href="{{ url_for('admin_logs') }}" class="btn btn-sm btn-secondary" style="background: transparent; color: #9ca3af; border-color: #374151;">Reset</a>
+    {% endif %}
+</form>
+
+<!-- Logs Table Card -->
+<div class="dash-card">
+    <div class="dash-card-header">
+        <h2>Audit Event Stream ({{ logs|length }} entries displayed)</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="dash-table">
+            <thead>
+                <tr>
+                    <th>Log ID</th>
+                    <th>Timestamp (UTC)</th>
+                    <th>User</th>
+                    <th>IP Address</th>
+                    <th>Event Type</th>
+                    <th>Endpoint</th>
+                    <th>Method</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if logs %}
+                    {% for log in logs %}
+                        <tr>
+                            <td style="font-family: monospace; font-size: 0.78rem; color: #38bdf8;">{{ log.log_id }}</td>
+                            <td style="white-space: nowrap; font-size: 0.8rem;">{{ log.timestamp[:19].replace('T', ' ') }}</td>
+                            <td><strong>{{ log.username }}</strong></td>
+                            <td style="font-family: monospace; font-size: 0.82rem;">{{ log.ip_address }}</td>
+                            <td><span class="badge-event">{{ log.event_type }}</span></td>
+                            <td style="font-family: monospace; font-size: 0.82rem;">{{ log.endpoint }}</td>
+                            <td style="font-size: 0.78rem; font-weight: 700; color: #94a3b8;">{{ log.http_method }}</td>
+                            <td>
+                                <span class="badge-sev badge-sev-{{ log.severity.lower() }}">
+                                    {{ log.severity }}
+                                </span>
+                            </td>
+                            <td>
+                                <span style="font-weight: 600; font-size: 0.75rem; color: {% if log.status == 'SUCCESS' %}#34d399{% elif log.status == 'FAILED' or log.status == 'DENIED' %}#f87171{% else %}#fbbf24{% endif %};">
+                                    {{ log.status }}
+                                </span>
+                            </td>
+                            <td style="max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ log.description }}">
+                                {{ log.description }}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin_log_details', log_id=log.log_id) }}" style="color: #38bdf8; text-decoration: none; font-size: 0.8rem; font-weight: 600;">Inspect</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="11" style="text-align: center; color: var(--dash-text-muted); padding: 3rem;">
+                            No log events match the applied filter criteria.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

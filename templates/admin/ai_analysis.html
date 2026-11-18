@@ -1,0 +1,173 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}AI Log Anomaly Scanner - SOC Security Center{% endblock %}
+
+{% block content %}
+<div class="admin-topbar">
+    <div class="admin-page-title">
+        <h1>AI Log Anomaly Detection System</h1>
+        <p>Machine Learning Isolation Forest and multi-dimensional behavioral threat radar</p>
+    </div>
+    <div class="admin-actions">
+        <form method="POST" action="{{ url_for('admin_ai_retrain') }}" style="display: inline;">
+            <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+            <button type="submit" class="btn btn-secondary btn-sm" style="background: #1f2937; color: #38bdf8; border-color: #374151;">
+                🔄 Retrain AI Baseline Model
+            </button>
+        </form>
+        <a href="{{ url_for('admin_simulator') }}" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #7c3aed, #0284c7); border: none;">
+            ⚡ Trigger AI Anomaly Simulations
+        </a>
+    </div>
+</div>
+
+<!-- Active AI Warnings Box -->
+{% if active_warnings %}
+<div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.3)); border: 2px solid #ef4444; border-radius: 8px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+        <h3 style="color: #ffffff; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+            <span>🚨</span> Active AI Anomaly Warnings ({{ active_warnings|length }} Unresolved)
+        </h3>
+        <span style="font-size: 0.8rem; color: #fca5a5;">Requires Immediate Administrator Triage</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {% for warn in active_warnings %}
+        <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(239, 68, 68, 0.5); border-radius: 6px; padding: 0.85rem 1.15rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <div style="max-width: 82%;">
+                <div style="font-size: 0.9rem; font-weight: 700; color: #ffffff; margin-bottom: 0.2rem;">
+                    <span class="badge-sev badge-sev-high" style="margin-right: 0.5rem;">{{ warn.alert_type }}</span>
+                    <span>Source IP: <code style="color: #38bdf8;">{{ warn.source_ip }}</code></span>
+                </div>
+                <div style="font-size: 0.85rem; color: #e2e8f0;">{{ warn.description }}</div>
+                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 0.25rem;">Detected at: {{ warn.timestamp[:19].replace('T', ' ') }} UTC</div>
+            </div>
+
+            <form method="POST" action="{{ url_for('admin_resolve_alert', alert_id=warn.alert_id) }}">
+                <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+                <button type="submit" class="btn btn-sm btn-primary" style="background: #059669; border: none; font-size: 0.8rem; padding: 0.35rem 0.85rem;">
+                    ✓ Mark Resolved
+                </button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- AI System Telemetry Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+    <div class="stat-card" style="border-top: 3px solid #8b5cf6;">
+        <div class="stat-card-header">
+            <span class="stat-label">Model Architecture</span>
+            <span class="stat-icon">🧠</span>
+        </div>
+        <div class="stat-value" style="font-size: 1.35rem; color: #c084fc;">Isolation Forest</div>
+        <div class="stat-subtext">Scikit-Learn Ensemble &bull; 100 Trees</div>
+    </div>
+
+    <div class="stat-card" style="border-top: 3px solid #38bdf8;">
+        <div class="stat-card-header">
+            <span class="stat-label">Model Health</span>
+            <span class="stat-icon">⚡</span>
+        </div>
+        <div class="stat-value" style="font-size: 1.35rem; color: #34d399;">ONLINE</div>
+        <div class="stat-subtext">Baseline Trained: {{ 'Yes' if is_trained else 'Initializing' }}</div>
+    </div>
+
+    <div class="stat-card" style="border-top: 3px solid #fbbf24;">
+        <div class="stat-card-header">
+            <span class="stat-label">Feature Vector Space</span>
+            <span class="stat-icon">📐</span>
+        </div>
+        <div class="stat-value" style="font-size: 1.35rem; color: #fbbf24;">10 Dimensions</div>
+        <div class="stat-subtext">Risk, Velocity, Temporal, Outcomes</div>
+    </div>
+
+    <div class="stat-card glow-red">
+        <div class="stat-card-header">
+            <span class="stat-label">Active AI Warnings</span>
+            <span class="stat-icon">🚨</span>
+        </div>
+        <div class="stat-value">{{ active_warnings|length }}</div>
+        <div class="stat-subtext">Requiring administrator review</div>
+    </div>
+</div>
+
+<!-- Scored Logs Radar Table -->
+<div class="dash-card">
+    <div class="dash-card-header">
+        <div>
+            <h2>Real-Time AI Anomaly Radar (Recent Scored Logs)</h2>
+            <p style="font-size: 0.78rem; color: var(--dash-text-muted); margin-top: 2px;">
+                Evaluates each incoming request against historical velocity, endpoint sensitivity, and credential rates
+            </p>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="dash-table">
+            <thead>
+                <tr>
+                    <th>Timestamp (UTC)</th>
+                    <th>User & IP</th>
+                    <th>HTTP Route</th>
+                    <th>AI Confidence Score</th>
+                    <th>Threat Classification</th>
+                    <th>Extracted Feature Vectors</th>
+                    <th>AI Behavioral Explanation</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in scored_logs %}
+                    <tr style="{% if item.analysis.is_anomaly %}background-color: rgba(239, 68, 68, 0.08);{% endif %}">
+                        <td style="font-size: 0.78rem; white-space: nowrap;">
+                            {{ item.log.timestamp[:19].replace('T', ' ') }}
+                        </td>
+                        <td>
+                            <div style="font-weight: 700; color: #ffffff;">{{ item.log.username }}</div>
+                            <div style="font-family: monospace; font-size: 0.78rem; color: #38bdf8;">{{ item.log.ip_address }}</div>
+                        </td>
+                        <td>
+                            <span style="font-size: 0.75rem; font-weight: 700; color: #94a3b8;">{{ item.log.http_method }}</span>
+                            <span style="font-family: monospace; font-size: 0.8rem; color: #e2e8f0;">{{ item.log.endpoint }}</span>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="font-weight: 800; font-size: 0.95rem; color: {% if item.analysis.confidence_pct >= 75 %}#ef4444{% elif item.analysis.confidence_pct >= 50 %}#fbbf24{% else %}#34d399{% endif %};">
+                                    {{ item.analysis.confidence_pct }}%
+                                </div>
+                                <div style="width: 50px; height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden;">
+                                    <div style="width: {{ item.analysis.confidence_pct }}%; height: 100%; background: {% if item.analysis.confidence_pct >= 75 %}#ef4444{% elif item.analysis.confidence_pct >= 50 %}#fbbf24{% else %}#34d399{% endif %};"></div>
+                                </div>
+                            </div>
+                            <span style="font-size: 0.7rem; color: var(--dash-text-muted);">
+                                {% if item.analysis.is_anomaly %}ANOMALOUS{% else %}NORMAL{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            {% if item.analysis.threat_type == 'AI_UNUSUAL_LOGIN_VOLUME' %}
+                                <span class="badge-sev badge-sev-high">UNUSUAL LOGINS</span>
+                            {% elif item.analysis.threat_type == 'AI_UNAUTHORIZED_REQUEST_ANOMALY' %}
+                                <span class="badge-sev badge-sev-critical">UNAUTHORIZED BREACH</span>
+                            {% elif item.analysis.threat_type == 'AI_VELOCITY_SPIKE' %}
+                                <span class="badge-sev badge-sev-medium">VELOCITY SPIKE</span>
+                            {% else %}
+                                <span class="badge-sev badge-sev-low">BASELINE NORMAL</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size: 0.75rem; font-family: monospace; color: #cbd5e1;">
+                            <div>Risk: {{ item.analysis.features.endpoint_risk }}</div>
+                            <div>Login Freq: {{ item.analysis.features.login_frequency }} / 3m</div>
+                            <div>Unauth Count: {{ item.analysis.features.unauthorized_count }} / 5m</div>
+                            <div>Velocity: {{ item.analysis.features.request_velocity }} / min</div>
+                        </td>
+                        <td style="font-size: 0.82rem; max-width: 300px; color: {% if item.analysis.is_anomaly %}#fca5a5{% else %}#94a3b8{% endif %};">
+                            {{ item.analysis.explanation }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

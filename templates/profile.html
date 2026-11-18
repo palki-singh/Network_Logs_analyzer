@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.full_name }} (@{{ user.username }}) - Astral Profile{% endblock %}
+
+{% block content %}
+<div class="profile-card">
+    <div class="profile-avatar-container">
+        <img src="{{ url_for('static', filename='uploads/' + (user.profile_picture or 'default_avatar.png')) }}" 
+             alt="{{ user.username }}" 
+             class="profile-avatar"
+             onerror="this.src='{{ url_for('static', filename='images/default_avatar.png') }}'">
+    </div>
+
+    <div class="profile-details">
+        <h2>{{ user.full_name }}</h2>
+        <div class="profile-username">@{{ user.username }}</div>
+        
+        <div style="margin-bottom: 1rem;">
+            <span class="zodiac-badge">{{ user.zodiac_sign or '✨ Cosmic Seeker' }}</span>
+        </div>
+
+        <p class="profile-bio">{{ user.bio or "Traversing constellations and exploring the cosmic frequency." }}</p>
+
+        <div class="profile-meta-grid">
+            <div class="meta-item">
+                <label>Astral Role</label>
+                <span style="text-transform: capitalize; color: #c084fc;">
+                    {% if user.role == 'admin' %}Observatory Keeper (Admin){% else %}Celestial Stargazer{% endif %}
+                </span>
+            </div>
+            <div class="meta-item">
+                <label>Orbit Established</label>
+                <span>{{ user.created_at[:10] if user.created_at else "Ancient Times" }}</span>
+            </div>
+            {% if is_own_profile %}
+            <div class="meta-item" style="grid-column: span 2;">
+                <label>Registered Astral Email</label>
+                <span style="color: var(--starlight-cyan);">{{ user.email }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div style="display: flex; gap: 0.85rem; justify-content: center; flex-wrap: wrap;">
+            {% if is_own_profile %}
+                <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">✏️ Edit Profile & Zodiac</a>
+                <a href="{{ url_for('chat_index') }}" class="btn btn-secondary">💬 Go to Astral Chat</a>
+            {% else %}
+                <a href="{{ url_for('chat_conversation', partner_id=user.user_id) }}" class="btn btn-primary">💬 Beam Message</a>
+                <a href="{{ url_for('users_discovery') }}" class="btn btn-secondary">⬅️ Cosmic Directory</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In - Cosmic Connect{% endblock %}
+
+{% block content %}
+<div class="form-card">
+    <div class="form-header">
+        <div style="font-size: 2.2rem; margin-bottom: 0.35rem; filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.6));">🪐</div>
+        <h2>Welcome Back, Stargazer</h2>
+        <p>Log in to access your private celestial conversations</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('login', next=request.args.get('next')) }}">
+        <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+
+        <div class="form-group">
+            <label for="identifier">Username or Astral Email</label>
+            <input type="text" id="identifier" name="identifier" class="form-control" placeholder="Enter username or email" required autofocus>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.25rem;">✨ Enter Cosmic Connect</button>
+
+        <div class="form-footer">
+            New to this star system? <a href="{{ url_for('register') }}">Join the Orbit</a>
+            <div style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px dashed rgba(139, 92, 246, 0.25); font-size: 0.82rem; color: var(--text-muted);">
+                Quick Demo Stargazers: <code>alice</code> or <code>bob</code> (Password: <code>Password123!</code>)
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

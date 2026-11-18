@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Cosmic Seekers - Cosmic Connect Directory{% endblock %}
+
+{% block content %}
+<div class="directory-header">
+    <div>
+        <h1 style="font-size: 2rem; color: #ffffff; font-weight: 800; display: flex; align-items: center; gap: 0.65rem;">
+            <span>🔮</span> Cosmic Seekers Directory
+        </h1>
+        <p style="color: var(--text-secondary); font-size: 0.96rem;">Discover stargazers, zodiac twins, and celestial souls across the universe</p>
+    </div>
+
+    <form method="GET" action="{{ url_for('users_discovery') }}" class="search-box">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search by name, handle, or zodiac..." class="form-control" style="border-radius: 20px;">
+        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+        {% if query %}
+            <a href="{{ url_for('users_discovery') }}" class="btn btn-secondary btn-sm">Reset</a>
+        {% endif %}
+    </form>
+</div>
+
+{% if users %}
+    <div class="users-grid">
+        {% for u in users %}
+            <div class="user-card">
+                <div>
+                    <img src="{{ url_for('static', filename='uploads/' + (u.profile_picture or 'default_avatar.png')) }}" 
+                         alt="{{ u.username }}" 
+                         class="user-card-avatar"
+                         onerror="this.src='{{ url_for('static', filename='images/default_avatar.png') }}'">
+                    <div class="user-card-name">{{ u.full_name }}</div>
+                    <div class="user-card-username">@{{ u.username }}</div>
+                    
+                    <div style="margin-bottom: 0.75rem;">
+                        <span class="zodiac-badge">{{ u.zodiac_sign or '✨ Cosmic Explorer' }}</span>
+                    </div>
+
+                    <p class="user-card-bio">{{ u.bio or "Stargazer contemplating the mysteries of deep space." }}</p>
+                </div>
+
+                <div style="display: flex; gap: 0.65rem; justify-content: center; margin-top: 1rem;">
+                    <a href="{{ url_for('view_user_profile', user_id=u.user_id) }}" class="btn btn-secondary btn-sm" style="flex: 1;">Star Chart</a>
+                    <a href="{{ url_for('chat_conversation', partner_id=u.user_id) }}" class="btn btn-primary btn-sm" style="flex: 1;">💬 Beam Chat</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div style="background: rgba(19, 21, 56, 0.6); border: 1px dashed var(--cosmic-border); border-radius: var(--radius-md); padding: 3.5rem; text-align: center; color: var(--text-muted);">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🔭</div>
+        <p style="font-size: 1.15rem; color: #ffffff; margin-bottom: 0.5rem;">No cosmic seekers found matching your query.</p>
+        <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Try searching for a different handle or clearing the planetary filter.</p>
+        <a href="{{ url_for('users_discovery') }}" class="btn btn-secondary btn-sm">View All Seekers</a>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Join the Orbit - Cosmic Connect{% endblock %}
+
+{% block content %}
+<div class="form-card">
+    <div class="form-header">
+        <div style="font-size: 2.2rem; margin-bottom: 0.35rem; filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.6));">🌌</div>
+        <h2>Create Your Astral Profile</h2>
+        <p>Begin your celestial journey on Cosmic Connect</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('register') }}">
+        <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+
+        <div class="form-group">
+            <label for="full_name">Full Celestial Name</label>
+            <input type="text" id="full_name" name="full_name" class="form-control" placeholder="e.g. Lyra Vance" required minlength="2" maxlength="60">
+        </div>
+
+        <div class="form-group">
+            <label for="username">Cosmic Username</label>
+            <input type="text" id="username" name="username" class="form-control" placeholder="e.g. starlight_lyra" required pattern="^[a-zA-Z0-9_]{3,20}$">
+            <div class="form-hint">3–20 characters, alphanumeric & underscores only.</div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Astral Email Address</label>
+            <input type="email" id="email" name="email" class="form-control" placeholder="e.g. lyra@cosmos.space" required>
+        </div>
+
+        <div class="form-group">
+            <label for="zodiac_sign">Zodiac / Astrological Sign</label>
+            <select id="zodiac_sign" name="zodiac_sign" class="form-control">
+                <option value="♈ Aries (Fire)">♈ Aries (Fire) • Mar 21 – Apr 19</option>
+                <option value="♉ Taurus (Earth)">♉ Taurus (Earth) • Apr 20 – May 20</option>
+                <option value="♊ Gemini (Air)">♊ Gemini (Air) • May 21 – Jun 20</option>
+                <option value="♋ Cancer (Water)">♋ Cancer (Water) • Jun 21 – Jul 22</option>
+                <option value="♌ Leo (Fire)">♌ Leo (Fire) • Jul 23 – Aug 22</option>
+                <option value="♍ Virgo (Earth)">♍ Virgo (Earth) • Aug 23 – Sep 22</option>
+                <option value="♎ Libra (Air)">♎ Libra (Air) • Sep 23 – Oct 22</option>
+                <option value="♏ Scorpio (Water)" selected>♏ Scorpio (Water) • Oct 23 – Nov 21</option>
+                <option value="♐ Sagittarius (Fire)">♐ Sagittarius (Fire) • Nov 22 – Dec 21</option>
+                <option value="♑ Capricorn (Earth)">♑ Capricorn (Earth) • Dec 22 – Jan 19</option>
+                <option value="♒ Aquarius (Air)">♒ Aquarius (Air) • Jan 20 – Feb 18</option>
+                <option value="♓ Pisces (Water)">♓ Pisces (Water) • Feb 19 – Mar 20</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Starlight Password</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="At least 8 characters" required minlength="8">
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Repeat your password" required minlength="8">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.25rem;">✨ Enter the Orbit</button>
+
+        <div class="form-footer">
+            Already aligned in the cosmos? <a href="{{ url_for('login') }}">Sign In</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

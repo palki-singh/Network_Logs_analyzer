@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Cosmic Connect - Connect Across the Universe{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-astrology-badge">
+        <span>🌙</span> Current Cosmic Transit: Waxing Moon in Leo &bull; Astral Energy at Peak Harmony ✨
+    </div>
+
+    <h1 class="hero-title">
+        Connect Across the Cosmos.<br>
+        <span class="hero-highlight">Align Your Constellations.</span>
+    </h1>
+
+    <p class="hero-subtitle">
+        Welcome to <strong>Cosmic Connect</strong> — an astrological, universe-themed private messaging sanctuary where stargazers, zodiac seekers, and cosmic travelers share thoughts, horoscopes, and celestial insights.
+    </p>
+
+    <div class="hero-actions">
+        {% if session.get('user_id') %}
+            <a href="{{ url_for('users_discovery') }}" class="btn btn-primary">🔮 Discover Cosmic Seekers</a>
+            <a href="{{ url_for('chat_index') }}" class="btn btn-secondary">💬 Enter Astral Messenger</a>
+        {% else %}
+            <a href="{{ url_for('register') }}" class="btn btn-primary">✨ Join the Orbit</a>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">Sign In to Your Chart</a>
+        {% endif %}
+        <a href="{{ url_for('admin_login') }}" class="btn btn-outline">🔭 Celestial Observatory (SOC)</a>
+    </div>
+
+    <!-- Daily Astrological Alignment Banner -->
+    <div class="cosmic-vibe-banner">
+        <div class="cosmic-vibe-icon">🪐</div>
+        <div>
+            <div class="cosmic-vibe-title">✨ Today's Planetary Transit & Horoscope Resonance</div>
+            <div class="cosmic-vibe-text">
+                Mercury forms a harmonious trine with Jupiter, expanding mental horizons and welcoming serendipitous connections. It is an auspicious cycle to reach out to fellow cosmic souls across the universe!
+            </div>
+        </div>
+    </div>
+
+    <!-- Cosmic Test Stargazers Card -->
+    <div style="background: rgba(19, 21, 56, 0.7); backdrop-filter: blur(16px); border: 1px solid var(--cosmic-border); border-radius: var(--radius-md); padding: 1.35rem 1.75rem; max-width: 820px; margin: 0 auto 3.5rem auto; text-align: left; box-shadow: var(--shadow-cosmic);">
+        <h4 style="margin-bottom: 0.5rem; color: #ffffff; display: flex; align-items: center; gap: 0.5rem;">
+            <span>⭐</span> Stargazer Demo Personas for Quick Exploration
+        </h4>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
+            Experience Cosmic Connect immediately with these pre-aligned zodiac explorer accounts:
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.85rem; font-size: 0.85rem;">
+            <div style="background: rgba(10, 11, 30, 0.65); padding: 0.75rem 0.95rem; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.25);">
+                <strong style="color: #c084fc;">♏ Alice (Scorpio):</strong><br>
+                <code>alice</code> / <code>Password123!</code>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Astrology devotee & astral cartographer</div>
+            </div>
+            <div style="background: rgba(10, 11, 30, 0.65); padding: 0.75rem 0.95rem; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.25);">
+                <strong style="color: #38bdf8;">♒ Bob (Aquarius):</strong><br>
+                <code>bob</code> / <code>Password123!</code>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Deep space astrophysicist & tarot guide</div>
+            </div>
+            <div style="background: rgba(10, 11, 30, 0.65); padding: 0.75rem 0.95rem; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.25);">
+                <strong style="color: #fbbf24;">♑ Observatory Admin:</strong><br>
+                <code>admin</code> / <code>Admin@SecureChat2026!</code>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Keeper of the Observatory SOC Console</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cosmic Astrology Features Grid -->
+    <div class="feature-grid">
+        <div class="feature-card">
+            <span class="feature-icon">♈</span>
+            <h3>Zodiac & Astral Profiles</h3>
+            <p>Customize your cosmic identity with your Sun sign, birth constellation, personalized astral bio, and glowing celestial avatar frame.</p>
+        </div>
+
+        <div class="feature-card">
+            <span class="feature-icon">💬</span>
+            <h3>Starlit Private Chat</h3>
+            <p>Direct 1-on-1 conversations wrapped in nebula purples and deep space blues. Only you and your conversation partner can access your messages.</p>
+        </div>
+
+        <div class="feature-card">
+            <span class="feature-icon">🔮</span>
+            <h3>Cosmic Seeker Discovery</h3>
+            <p>Explore seekers across the universe. Filter by zodiac element (Fire, Earth, Air, Water) and beam instant conversation requests.</p>
+        </div>
+
+        <div class="feature-card">
+            <span class="feature-icon">🛡️</span>
+            <h3>Celestial Observatory SOC</h3>
+            <p>An automated cybersecurity guardian recording telemetry into JSON logs and defending the cosmos against intrusion anomalies in real time.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

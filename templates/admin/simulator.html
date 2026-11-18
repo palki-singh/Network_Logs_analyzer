@@ -1,0 +1,183 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Threat Simulator - SOC Security Center{% endblock %}
+
+{% block content %}
+<div class="admin-topbar">
+    <div class="admin-page-title">
+        <h1>Cybersecurity Threat Simulator</h1>
+        <p>Safely simulate suspicious activities to demonstrate and test the rule-based Intrusion Detection System</p>
+    </div>
+    <div class="admin-actions">
+        <a href="{{ url_for('admin_alerts') }}" class="btn btn-secondary btn-sm" style="background: #1f2937; color: #38bdf8; border-color: #374151;">🚨 View Security Alerts</a>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+
+    <!-- Simulation 1: Brute Force -->
+    <div class="dash-card" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 1.1rem; color: #ffffff;">Rule 1: Brute-Force Logins</h3>
+                <span class="badge-sev badge-sev-high">HIGH</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--dash-text-muted); margin-bottom: 1.25rem;">
+                Simulates 5 consecutive failed login attempts against a single target user from IP <code>198.51.100.22</code> within 5 minutes.
+            </p>
+        </div>
+        <form method="POST" action="{{ url_for('admin_trigger_simulation') }}">
+            <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+            <input type="hidden" name="scenario" value="brute_force">
+            <button type="submit" class="btn btn-primary btn-sm btn-block" style="background: #dc2626; border: none;">
+                ⚡ Simulate Brute-Force Attack
+            </button>
+        </form>
+    </div>
+
+    <!-- Simulation 2: Frequent Login Burst -->
+    <div class="dash-card" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 1.1rem; color: #ffffff;">Rule 2: Rapid Login Burst</h3>
+                <span class="badge-sev badge-sev-medium">MEDIUM</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--dash-text-muted); margin-bottom: 1.25rem;">
+                Simulates 10 rapid login attempts within a 2-minute window from IP <code>203.0.113.88</code>.
+            </p>
+        </div>
+        <form method="POST" action="{{ url_for('admin_trigger_simulation') }}">
+            <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+            <input type="hidden" name="scenario" value="login_burst">
+            <button type="submit" class="btn btn-primary btn-sm btn-block" style="background: #d97706; border: none;">
+                ⚡ Simulate Rapid Login Burst
+            </button>
+        </form>
+    </div>
+
+    <!-- Simulation 3: Unauthorized Admin Access -->
+    <div class="dash-card" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 1.1rem; color: #ffffff;">Rule 3: Unauthorized Access</h3>
+                <span class="badge-sev badge-sev-high">HIGH</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--dash-text-muted); margin-bottom: 1.25rem;">
+                Simulates an unauthenticated user attempting to access administrative configuration routes.
+            </p>
+        </div>
+        <form method="POST" action="{{ url_for('admin_trigger_simulation') }}">
+            <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+            <input type="hidden" name="scenario" value="unauth_admin">
+            <button type="submit" class="btn btn-primary btn-sm btn-block" style="background: #b91c1c; border: none;">
+                ⚡ Simulate Unauthorized Admin Probe
+            </button>
+        </form>
+    </div>
+
+    <!-- Simulation 4: Abnormal Messaging Velocity -->
+    <div class="dash-card" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 1.1rem; color: #ffffff;">Rule 4: Abnormal Message Velocity</h3>
+                <span class="badge-sev badge-sev-high">HIGH</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--dash-text-muted); margin-bottom: 1.25rem;">
+                Simulates an automated spam bot sending 16 messages within 60 seconds from an account.
+            </p>
+        </div>
+        <form method="POST" action="{{ url_for('admin_trigger_simulation') }}">
+            <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+            <input type="hidden" name="scenario" value="abnormal_messages">
+            <button type="submit" class="btn btn-primary btn-sm btn-block" style="background: #ea580c; border: none;">
+                ⚡ Simulate Message Spam Velocity
+            </button>
+        </form>
+    </div>
+
+    <!-- Simulation 5: 404 Endpoint Reconnaissance -->
+    <div class="dash-card" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 1.1rem; color: #ffffff;">Rule 5: Endpoint Directory Scanning</h3>
+                <span class="badge-sev badge-sev-medium">MEDIUM</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--dash-text-muted); margin-bottom: 1.25rem;">
+                Simulates 5 rapid 404 invalid endpoint requests probing for <code>/wp-admin</code>, <code>/.env</code>, <code>/phpmyadmin</code>, etc.
+            </p>
+        </div>
+        <form method="POST" action="{{ url_for('admin_trigger_simulation') }}">
+            <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+            <input type="hidden" name="scenario" value="endpoint_scan">
+            <button type="submit" class="btn btn-primary btn-sm btn-block" style="background: #4f46e5; border: none;">
+                ⚡ Simulate 404 Reconnaissance Scan
+            </button>
+        </form>
+    </div>
+
+    <!-- Simulation 6: Session Security Violation -->
+    <div class="dash-card" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 1.1rem; color: #ffffff;">Rule 6: Session Security Tampering</h3>
+                <span class="badge-sev badge-sev-high">HIGH</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--dash-text-muted); margin-bottom: 1.25rem;">
+                Simulates a detected session hijacking or client IP divergence anomaly for an active session.
+            </p>
+        </div>
+        <form method="POST" action="{{ url_for('admin_trigger_simulation') }}">
+            <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+            <input type="hidden" name="scenario" value="session_anomaly">
+            <button type="submit" class="btn btn-primary btn-sm btn-block" style="background: #7c3aed; border: none;">
+                ⚡ Simulate Session Tampering
+            </button>
+        </form>
+    </div>
+
+    <!-- AI Anomaly Simulation 1: Unauthorized Request Anomaly -->
+    <div class="dash-card" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid #ef4444; background: linear-gradient(135deg, rgba(30, 20, 45, 0.9), rgba(15, 23, 42, 0.9));">
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 1.1rem; color: #ffffff; display: flex; align-items: center; gap: 0.4rem;">
+                    <span>🤖</span> AI: Unauthorized Request
+                </h3>
+                <span class="badge-sev badge-sev-critical">CRITICAL</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #fca5a5; margin-bottom: 1.25rem;">
+                Simulates an unauthenticated attacker targeting <code>/admin/api/keys</code> without permission. Triggers the AI model to dispatch an immediate <strong>AI Warning Alert</strong> to the dashboard!
+            </p>
+        </div>
+        <form method="POST" action="{{ url_for('admin_trigger_simulation') }}">
+            <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+            <input type="hidden" name="scenario" value="ai_unauth_request">
+            <button type="submit" class="btn btn-primary btn-sm btn-block" style="background: linear-gradient(135deg, #ef4444, #b91c1c); border: none; font-weight: 700;">
+                🚨 Trigger AI Unauthorized Request Warning
+            </button>
+        </form>
+    </div>
+
+    <!-- AI Anomaly Simulation 2: Unusual Amount of Logins -->
+    <div class="dash-card" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid #f59e0b; background: linear-gradient(135deg, rgba(40, 30, 20, 0.9), rgba(15, 23, 42, 0.9));">
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 1.1rem; color: #ffffff; display: flex; align-items: center; gap: 0.4rem;">
+                    <span>🤖</span> AI: Unusual Login Amount
+                </h3>
+                <span class="badge-sev badge-sev-high">HIGH</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #fde68a; margin-bottom: 1.25rem;">
+                Simulates an automated credential burst of 8 rapid login attempts from IP <code>203.0.113.199</code>. Triggers the AI model's velocity detector to dispatch an <strong>Unusual Login Volume Warning</strong>!
+            </p>
+        </div>
+        <form method="POST" action="{{ url_for('admin_trigger_simulation') }}">
+            <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+            <input type="hidden" name="scenario" value="ai_unusual_logins">
+            <button type="submit" class="btn btn-primary btn-sm btn-block" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: none; font-weight: 700;">
+                🚨 Trigger AI Unusual Logins Warning
+            </button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
